@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace hack_a_peter {
@@ -7,10 +8,17 @@ namespace hack_a_peter {
                                                                                     Tim was here ...
 
         Das Format einer InitFile ist : 
-            assetname "filepath"
-            assetname "filepath"
+            format assetname "filepath"
+            format assetname "filepath"
             ...
-        wobei assetname immer das ist, womit du vom TextureManager am Ende die Texture bekommst
+        wobei   assetname immer das ist, womit du vom TextureManager am Ende die Texture bekommst und 
+                format jeweils für den Datentyp steht {
+                    A = SoundEffect aka Audio
+                    S = Song
+                    T = Texture
+                    V = Video
+                    F = Font    
+                }
         In jedem Verweis auf ein Asset muss im Pfad nicht "Assets/*" stehen, sondern nur der Dateiname und möglicherweise vorher ein Unterverzeichnis.
 
         Die Implementationen von EndData (EndData/EndData.cs) sind dazu da, um den Scenen, die nach der vorherigen kamen Informationen zum anzeigen zu geben.
@@ -50,9 +58,9 @@ namespace hack_a_peter {
         }
 
         protected override void LoadContent () {
-            AssetsManager.LoadGameFont (this.Content);
+            Assets.Load ("main.init", this.Content);
             foreach (Scene scene in sceneList) {
-                AssetsManager.Load (scene.InitFile, this.Content);
+                Assets.Load (scene.InitFile, this.Content);
             }
         }
 
@@ -66,26 +74,36 @@ namespace hack_a_peter {
 
 #if DEBUG
             // draw info
-            spriteBatch.DrawString (AssetsManager.GameFont12, "fps : " + (1000f / gameTime.ElapsedGameTime.Milliseconds).ToString ("00.00") + " #hyperSpeed", new Vector2 (1, 1), Color.Black);
+            spriteBatch.DrawString (Assets.Fonts.Get ("12px"), "fps : " + (1000f / gameTime.ElapsedGameTime.Milliseconds).ToString ("00.00") + " #hyperSpeed", new Vector2 (1, 1), Color.Black);
 #endif
             spriteBatch.End ();
         }
 
         protected override void Initialize () {
             spriteBatch = new SpriteBatch (this.GraphicsDevice);
-            sceneList = new SceneList (new Scenes.MainMenu ());
+            sceneList = new SceneList (OnFinished, new Scenes.MainMenu ());
 
             base.Initialize ();
         }
 
         protected override void UnloadContent () {
-            AssetsManager.DeleteAll ();
+            Content.Unload ();
         }
 
         protected override void Update (GameTime gameTime) {
             sceneList.CurrentScene.Update (gameTime.ElapsedGameTime.Milliseconds);
 
             base.Update (gameTime);
+        }
+
+        private void OnFinished (string nextScene, EndData.EndData endData) {
+            if (sceneList.SetScene (nextScene)) {
+                Console.WriteLine ("set scene to " + nextScene);
+                sceneList.CurrentScene.Begin (endData);
+            } else {
+                Console.WriteLine ("failed to set scene " + nextScene + ", returning to main menu");
+                sceneList.SetScene (SceneList.MAIN_MENU_NAME);
+            }
         }
     }
 }

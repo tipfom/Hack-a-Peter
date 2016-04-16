@@ -8,9 +8,13 @@ namespace hack_a_peter {
         private int currentSceneIndex;
         public Scene CurrentScene { get { return this[currentSceneIndex]; } }
 
-        public SceneList (params Scene[] allScenes) {
+        public SceneList (Scene.OnSceneFinished finishedHandleDelegate, params Scene[] allScenes) {
             this.AddRange (allScenes);
             SetScene (MAIN_MENU_NAME); // always start at the main menu
+
+            for (int i = 0; i < this.Count; i++) {
+                this[i].Finished += finishedHandleDelegate;
+            }
         }
 
         public bool SetScene (string name) {

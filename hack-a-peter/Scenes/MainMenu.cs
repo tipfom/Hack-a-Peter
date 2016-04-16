@@ -19,16 +19,16 @@ namespace hack_a_peter.Scenes {
         }
 
         public override void Draw (SpriteBatch spriteBatch) {
-            spriteBatch.Draw (AssetsManager.Get ("illuminati"), new Rectangle (0, 0, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT), Color.White);
-            spriteBatch.DrawString (AssetsManager.GameFont72, "HACK-A-PETER",
-                new Vector2 ((Game.WINDOW_WIDTH - AssetsManager.GameFont72.MeasureString ("HACK-A-PETER").X) / 2, 10),
+            spriteBatch.Draw (Assets.Textures.Get ("illuminati"), new Rectangle (0, 0, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT), Color.White);
+            spriteBatch.DrawString (Assets.Fonts.Get ("72px"), "HACK-A-PETER",
+                new Vector2 ((Game.WINDOW_WIDTH - Assets.Fonts.Get ("72px").MeasureString ("HACK-A-PETER").X) / 2, 10),
                 Color.Orange);
-            spriteBatch.DrawString (AssetsManager.GameFont48, "MAIN MENU (BETA)",
-                new Vector2 (Game.WINDOW_WIDTH - AssetsManager.GameFont48.MeasureString ("MAIN MENU (BETA)").X,
-                Game.WINDOW_HEIGHT - AssetsManager.GameFont48.MeasureString ("MAIN MENU (BETA)").Y) / 2,
+            spriteBatch.DrawString (Assets.Fonts.Get ("48px"), "MAIN MENU (BETA)",
+                new Vector2 (Game.WINDOW_WIDTH - Assets.Fonts.Get ("48px").MeasureString ("MAIN MENU (BETA)").X,
+                Game.WINDOW_HEIGHT - Assets.Fonts.Get ("48px").MeasureString ("MAIN MENU (BETA)").Y) / 2,
                 Color.Blue);
-            spriteBatch.Draw (AssetsManager.Get ("mlgbrille"), new Rectangle (Game.WINDOW_WIDTH *3/4, Game.WINDOW_HEIGHT *2/3, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT), null, Color.White,
-                rotation, new Vector2 (AssetsManager.Get ("mlgbrille").Width / 2, AssetsManager.Get ("mlgbrille").Height / 2),
+            spriteBatch.Draw (Assets.Textures.Get ("mlgbrille"), new Rectangle (Game.WINDOW_WIDTH * 3 / 4, Game.WINDOW_HEIGHT * 2 / 3, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT), null, Color.White,
+                rotation, new Vector2 (Assets.Textures.Get ("mlgbrille").Width / 2, Assets.Textures.Get ("mlgbrille").Height / 2),
                 SpriteEffects.FlipHorizontally, 1);
         }
 
