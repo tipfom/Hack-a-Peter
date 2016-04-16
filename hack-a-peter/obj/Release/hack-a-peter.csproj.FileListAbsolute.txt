@@ -1,0 +1,16 @@
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\hack-a-peter.exe.config
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\Assets\icon.ico
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\Assets\fonts\12px.xnb
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\Assets\fonts\14px.xnb
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\Assets\fonts\32px.xnb
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\Assets\fonts\48px.xnb
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\Assets\fonts\72px.xnb
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\Assets\mainmenu.init
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\hack-a-peter.exe
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\hack-a-peter.pdb
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\MonoGame.Framework.dll
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\NVorbis.dll
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\OpenTK.dll
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Release\MonoGame.Framework.xml
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\obj\Release\hack-a-peter.exe
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\obj\Release\hack-a-peter.pdb
