@@ -60,9 +60,16 @@
     <Compile Include="Scenes\SceneList.cs" />
     <Compile Include="Scenes\MainMenu.cs" />
     <Compile Include="Assets.cs" />
+    <Compile Include="Scenes\ScreenOfDeath.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Assets\deathscreen.init">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\fonts\bluescreenfont.xnb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Assets\fonts\12px.xnb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

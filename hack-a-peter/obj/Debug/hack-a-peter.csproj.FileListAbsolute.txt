@@ -24,3 +24,5 @@ E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Debug\SharpDX.RawInput.dll
 E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Debug\SharpDX.Direct3D9.dll
 E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Debug\Assets\main.init
 E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Debug\Assets\fonts\12px.xnb
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Debug\Assets\deathscreen.init
+E:\Projekte\MonoGame\hack-a-peter\hack-a-peter\bin\Debug\Assets\fonts\bluescreenfont.xnb
