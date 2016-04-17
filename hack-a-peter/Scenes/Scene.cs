@@ -26,5 +26,9 @@ namespace hack_a_peter {
         public virtual void Update (int dt) {
 
         }
+
+        protected void OnFinished (string nextScene, EndData.EndData endData) {
+            this.Finished (nextScene, endData);
+        }
     }
 }

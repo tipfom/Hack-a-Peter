@@ -34,6 +34,8 @@ namespace hack_a_peter.Scenes {
 
         public override void Update (int dt) {
             rotation += dt;
+
+            OnFinished ("death_screen", new EndData.GameEndData (1337, this.Name));
         }
     }
 }

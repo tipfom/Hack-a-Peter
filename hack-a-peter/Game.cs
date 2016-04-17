@@ -39,6 +39,7 @@ namespace hack_a_peter {
         private SpriteBatch spriteBatch;
 
         private SceneList sceneList;
+        private int timePlayedTotal;
 
         public Game () {
             // init graphics
@@ -68,7 +69,7 @@ namespace hack_a_peter {
             // clear screen
             this.GraphicsDevice.Clear (sceneList.CurrentScene.BackColor);
 
-            spriteBatch.Begin ();
+            spriteBatch.Begin (SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
 
             sceneList.CurrentScene.Draw (spriteBatch);
 
@@ -81,7 +82,9 @@ namespace hack_a_peter {
 
         protected override void Initialize () {
             spriteBatch = new SpriteBatch (this.GraphicsDevice);
-            sceneList = new SceneList (OnFinished, new Scenes.MainMenu ());
+            sceneList = new SceneList (OnFinished, 
+                new Scenes.MainMenu (),
+                new Scenes.ScreenOfDeath());
 
             base.Initialize ();
         }
@@ -91,12 +94,19 @@ namespace hack_a_peter {
         }
 
         protected override void Update (GameTime gameTime) {
+            timePlayedTotal += gameTime.ElapsedGameTime.Milliseconds;
+
             sceneList.CurrentScene.Update (gameTime.ElapsedGameTime.Milliseconds);
 
+            this.IsMouseVisible = sceneList.CurrentScene.IsMouseVisible;
             base.Update (gameTime);
         }
 
         private void OnFinished (string nextScene, EndData.EndData endData) {
+            if (endData.LastScene == SceneList.MAIN_MENU_NAME)
+                timePlayedTotal = 0;
+            endData.TimePlayed = timePlayedTotal;
+
             if (sceneList.SetScene (nextScene)) {
                 Console.WriteLine ("set scene to " + nextScene);
                 sceneList.CurrentScene.Begin (endData);
@@ -104,6 +114,7 @@ namespace hack_a_peter {
                 Console.WriteLine ("failed to set scene " + nextScene + ", returning to main menu");
                 sceneList.SetScene (SceneList.MAIN_MENU_NAME);
             }
+            sceneList.CurrentScene.Begin (endData);
         }
     }
 }
