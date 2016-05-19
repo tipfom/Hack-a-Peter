@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace hack_a_peter.Scenes {
     class MainMenu : Scene {
@@ -32,10 +33,10 @@ namespace hack_a_peter.Scenes {
                 SpriteEffects.FlipHorizontally, 1);
         }
 
-        public override void Update (int dt) {
+        public override void Update (int dt, KeyboardState keyboard, MouseState mouse) {
             rotation += dt;
 
-            OnFinished ("death_screen", new EndData.GameEndData (1337, this.Name));
+            OnFinished ("scene_spaceshooter", new EndData.GameEndData (1337, this.Name));
         }
     }
 }

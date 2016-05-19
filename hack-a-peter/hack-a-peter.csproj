@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="EndData\EndData.cs" />
     <Compile Include="EndData\GameEndData.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Scenes\MainMenu.cs" />
     <Compile Include="Assets.cs" />
     <Compile Include="Scenes\ScreenOfDeath.cs" />
+    <Compile Include="Scenes\SpaceShooterScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -91,13 +93,25 @@
     <None Include="Assets\mainmenu.init">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Assets\spaceshooter.init">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\textures\Bug.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\textures\pixelbrille-thug-life-sunglasses-pixel-d76518547.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\textures\Illuminati-Transparent.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\spacecraft.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\space_background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="icon.ico" />

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace hack_a_peter {
     public abstract class Scene {
@@ -23,7 +24,7 @@ namespace hack_a_peter {
         }
 
         // deltatime in milliseconds
-        public virtual void Update (int dt) {
+        public virtual void Update (int dt, KeyboardState keyboard, MouseState mouse ) {
 
         }
 

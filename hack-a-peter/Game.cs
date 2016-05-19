@@ -1,8 +1,10 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
-namespace hack_a_peter {
+namespace hack_a_peter
+{
     /*
         Hallo Erik. :)
                                                                                     Tim was here ...
@@ -27,27 +29,31 @@ namespace hack_a_peter {
 
         VIEL SPAß, GL HAVE FUN.
          */
-    class Game : Microsoft.Xna.Framework.Game {
+    class Game : Microsoft.Xna.Framework.Game
+    {
         public const bool USE_VSYNC = true;
         public const bool USE_ANTIALISING = false;
-        public const int WINDOW_WIDTH = 800;
-        public const int WINDOW_HEIGHT = 640;
+        public const int WINDOW_WIDTH = 1024;
+        public const int WINDOW_HEIGHT = 768;
         public const string WINDOW_TITLE = @"¯\_(ツ)_/¯          Hack-A-Peter the Game          (╯°□°）╯︵ ┻━┻";
+        public const int CURRENT_SEED = 1337;
 
         // visual variables
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-
+        
         private SceneList sceneList;
         private int timePlayedTotal;
+        private Random random;
 
-        public Game () {
+        public Game()
+        {
             // init graphics
-            graphics = new GraphicsDeviceManager (this);
+            graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
             graphics.PreferredBackBufferWidth = WINDOW_WIDTH;
             graphics.PreferMultiSampling = USE_ANTIALISING;
-            graphics.ApplyChanges ();
+            graphics.ApplyChanges();
 
             // set content directory
             Content.RootDirectory = "Assets";
@@ -58,63 +64,75 @@ namespace hack_a_peter {
             this.Window.Title = WINDOW_TITLE;
         }
 
-        protected override void LoadContent () {
-            Assets.Load ("main.init", this.Content);
-            foreach (Scene scene in sceneList) {
-                Assets.Load (scene.InitFile, this.Content);
+        protected override void LoadContent()
+        {
+            Assets.Load("main.init", this.Content);
+            foreach (Scene scene in sceneList)
+            {
+                Assets.Load(scene.InitFile, this.Content);
             }
         }
 
-        protected override void Draw (GameTime gameTime) {
+        protected override void Draw(GameTime gameTime)
+        {
             // clear screen
-            this.GraphicsDevice.Clear (sceneList.CurrentScene.BackColor);
+            this.GraphicsDevice.Clear(sceneList.CurrentScene.BackColor);
 
-            spriteBatch.Begin (SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
 
-            sceneList.CurrentScene.Draw (spriteBatch);
+            sceneList.CurrentScene.Draw(spriteBatch);
 
 #if DEBUG
             // draw info
-            spriteBatch.DrawString (Assets.Fonts.Get ("12px"), "fps : " + (1000f / gameTime.ElapsedGameTime.Milliseconds).ToString ("00.00") + " #hyperSpeed", new Vector2 (1, 1), Color.Black);
+            spriteBatch.DrawString(Assets.Fonts.Get("12px"), "fps : " + (1000f / gameTime.ElapsedGameTime.Milliseconds).ToString("00.00") + " #hyperSpeed", new Vector2(1, 1), Color.Black);
 #endif
-            spriteBatch.End ();
+            spriteBatch.End();
         }
 
-        protected override void Initialize () {
-            spriteBatch = new SpriteBatch (this.GraphicsDevice);
-            sceneList = new SceneList (OnFinished, 
-                new Scenes.MainMenu (),
-                new Scenes.ScreenOfDeath());
+        protected override void Initialize()
+        {
+            random = new Random(CURRENT_SEED);
+            spriteBatch = new SpriteBatch(this.GraphicsDevice);
+            sceneList = new SceneList(OnFinished,
+                new Scenes.MainMenu(),
+                new Scenes.ScreenOfDeath(),
+                new Scenes.SpaceShooterScene(random.Next(int.MinValue,int.MaxValue)));
 
-            base.Initialize ();
+            base.Initialize();
         }
 
-        protected override void UnloadContent () {
-            Content.Unload ();
+        protected override void UnloadContent()
+        {
+            Content.Unload();
         }
 
-        protected override void Update (GameTime gameTime) {
+        protected override void Update(GameTime gameTime)
+        {
             timePlayedTotal += gameTime.ElapsedGameTime.Milliseconds;
 
-            sceneList.CurrentScene.Update (gameTime.ElapsedGameTime.Milliseconds);
+            sceneList.CurrentScene.Update(gameTime.ElapsedGameTime.Milliseconds, Keyboard.GetState(), Mouse.GetState());
 
             this.IsMouseVisible = sceneList.CurrentScene.IsMouseVisible;
-            base.Update (gameTime);
+            base.Update(gameTime);
         }
 
-        private void OnFinished (string nextScene, EndData.EndData endData) {
+        private void OnFinished(string nextScene, EndData.EndData endData)
+        {
             if (endData.LastScene == SceneList.MAIN_MENU_NAME)
                 timePlayedTotal = 0;
             endData.TimePlayed = timePlayedTotal;
 
-            if (sceneList.SetScene (nextScene)) {
-                Console.WriteLine ("set scene to " + nextScene);
-                sceneList.CurrentScene.Begin (endData);
-            } else {
-                Console.WriteLine ("failed to set scene " + nextScene + ", returning to main menu");
-                sceneList.SetScene (SceneList.MAIN_MENU_NAME);
+            if (sceneList.SetScene(nextScene))
+            {
+                Console.WriteLine("set scene to " + nextScene);
+                sceneList.CurrentScene.Begin(endData);
             }
-            sceneList.CurrentScene.Begin (endData);
+            else
+            {
+                Console.WriteLine("failed to set scene " + nextScene + ", returning to main menu");
+                sceneList.SetScene(SceneList.MAIN_MENU_NAME);
+            }
+            sceneList.CurrentScene.Begin(endData);
         }
     }
 }

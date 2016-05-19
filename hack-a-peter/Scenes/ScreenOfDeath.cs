@@ -2,6 +2,7 @@
 using hack_a_peter.EndData;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace hack_a_peter.Scenes {
     class ScreenOfDeath : Scene {
@@ -45,7 +46,8 @@ namespace hack_a_peter.Scenes {
 
         }
 
-        public override void Begin (EndData.EndData lastSceneEndData) {
+        public override void Begin (EndData.EndData lastSceneEndData)
+        {
             if (lastSceneEndData.GetType () == typeof (GameEndData)) {
                 score = ((GameEndData)lastSceneEndData).FinishedScore;
             } else {
