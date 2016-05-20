@@ -96,7 +96,8 @@ namespace hack_a_peter
             sceneList = new SceneList(OnFinished,
                 new Scenes.MainMenu(),
                 new Scenes.ScreenOfDeath(),
-                new Scenes.SpaceShooterScene(random.Next(int.MinValue,int.MaxValue)));
+                new Scenes.SpaceShooterScene(random.Next(int.MinValue,int.MaxValue)),
+                new Scenes.StrategyScene());
 
             base.Initialize();
         }

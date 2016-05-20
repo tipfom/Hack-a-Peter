@@ -1,0 +1,5 @@
+﻿T tile_bigcover "tile_bigcover.png"
+T tile_smallcover "tile_smallcover.png"
+T tile_default "tile_default.png"
+T tile_impossible "tile_impossible.png"
+T selected "selected.png"
