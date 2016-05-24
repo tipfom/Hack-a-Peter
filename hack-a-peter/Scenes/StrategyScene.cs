@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using hack_a_peter.EndData;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using hack_a_peter.Scenes.Strategy;
 
 namespace hack_a_peter.Scenes
 {
@@ -55,7 +57,10 @@ namespace hack_a_peter.Scenes
                     Field[x, y] = new Strategy.Tile();
                 }
             }
-                    Field[3, 4].Type = 3;
+            this.LoadMap(Environment.CurrentDirectory + "\\Assets\\main.hpmap");
+            Unit Opponent = new Unit();
+            Opponent.Texture = UnitTexture.Hero2;
+            Field[15, 9].Unit = Opponent;
             SelectedTile = new Point(0, 0);
             Camera = new Point(0, 0);
         }
@@ -82,9 +87,54 @@ namespace hack_a_peter.Scenes
                             spriteBatch.Draw(Assets.Textures.Get("tile_impossible"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
                             break;
                     }
+                    if (Field[x, y].Unit != null)
+                    {
+                        switch (Field[x,y].Unit.Texture)
+                        {
+                            case UnitTexture.Bug1:
+                                spriteBatch.Draw(Assets.Textures.Get("enemy1"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                                break;
+                            case UnitTexture.Bug2:
+                                spriteBatch.Draw(Assets.Textures.Get("enemy2"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                                break;
+                            case UnitTexture.Hero1:
+                                spriteBatch.Draw(Assets.Textures.Get("hero1"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                                break;
+                            case UnitTexture.Hero2:
+                                spriteBatch.Draw(Assets.Textures.Get("hero2"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
             }
             spriteBatch.Draw(Assets.Textures.Get("selected"), new Rectangle(new Point(SelectedTile.X * 40 - Camera.X, SelectedTile.Y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+
+            string TileInfo= "Tile Info";
+            try
+            {
+                switch (Field[SelectedTile.X, SelectedTile.Y].Type)
+                {
+                    case 0:
+                        TileInfo = "Flat";
+                        break;
+                    case 1:
+                        TileInfo = "Bad Cover";
+                        break;
+                    case 2:
+                        TileInfo = "Good Cover";
+                        break;
+                    case 3:
+                        TileInfo = "Unpassable";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (IndexOutOfRangeException)
+            { }
+            spriteBatch.DrawString(Assets.Fonts.Get("14px"), TileInfo + " " + SelectedTile.ToString(), new Vector2(0, Game.WINDOW_HEIGHT - 30),Color.Black);
         }
 
         public override void Update(int dt, KeyboardState keyboard, MouseState mouse)
@@ -108,6 +158,46 @@ namespace hack_a_peter.Scenes
             }
             //Selected Tile
             SelectedTile = (mouse.Position + Camera) / new Point(40, 40);
+            //MouseInput
+            if (mouse.LeftButton == ButtonState.Pressed)
+            {
+                if (Field[SelectedTile.X, SelectedTile.Y].Unit != null)
+                {
+                    //Unten am Screen was einblenden
+                }
+            }
+        }
+
+        private void LoadMap(string path)
+        {
+            bool there = File.Exists(path); 
+            StreamReader MyReader = new StreamReader(File.OpenRead(path));
+            int Line = 0;
+            while (!MyReader.EndOfStream)
+            {
+                string Content = MyReader.ReadLine();
+                for (int i = 0; i < Content.Length; i++)
+                {
+                    int Type = 0;
+                    switch (Content[i])
+                    {
+                        case '0':
+                            Type = 0;
+                            break;
+                        case 'H':
+                            Type = 1;
+                            break;
+                        case '#':
+                            Type = 2;
+                            break;
+                        case 'X':
+                            Type = 3;
+                            break;
+                    }
+                    Field[i, Line].Type = Type;
+                }
+                Line++;
+            }
         }
     }
 }

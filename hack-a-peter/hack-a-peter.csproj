@@ -65,6 +65,8 @@
     <Compile Include="Scenes\SpaceShooterScene.cs" />
     <Compile Include="Scenes\StrategyScene.cs" />
     <Compile Include="Scenes\Strategy\Tile.cs" />
+    <Compile Include="Scenes\Strategy\Unit.cs" />
+    <Compile Include="Scenes\Strategy\Weapon.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -92,6 +94,9 @@
     <None Include="Assets\main.init">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Assets\main.hpmap">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Assets\mainmenu.init">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -104,10 +109,19 @@
     <None Include="Assets\strategy.init">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="Assets\textures\selected.png">
+    <Content Include="Assets\textures\bug.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\textures\Bug.png">
+    <Content Include="Assets\textures\bug_invert.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\hero1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\hero2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\selected.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\textures\pixelbrille-thug-life-sunglasses-pixel-d76518547.png">

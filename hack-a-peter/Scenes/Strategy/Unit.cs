@@ -1,0 +1,58 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace hack_a_peter.Scenes.Strategy
+{
+    public enum UnitTexture
+    {
+        Bug1,
+        Bug2,
+        Hero1,
+        Hero2
+    }
+    public class Unit
+    {
+        public Unit()
+        {
+            Weapons = new List<Weapon>();
+        }
+
+        private int _Health;
+        public int Health
+        {
+            get { return _Health; }
+            set { _Health = value; }
+        }
+
+        private int _Armor;
+        public int Armor
+        {
+            get { return _Armor; }
+            set { _Armor = value; }
+        }
+
+        private int _MoveSpeed;
+        public int MoveSpeed
+        {
+            get { return _MoveSpeed; }
+            set { _MoveSpeed = value; }
+        }
+
+        private UnitTexture _Texture;
+        public UnitTexture Texture
+        {
+            get { return _Texture; }
+            set { _Texture = value; }
+        }
+
+        private List<Weapon> _Weapons;
+        public List<Weapon> Weapons
+        {
+            get { return _Weapons; }
+            set { _Weapons = value; }
+        }
+    }
+}

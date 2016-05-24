@@ -96,3 +96,7 @@ C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\tile_impossible.png
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\strategy.init
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\selected.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\main.hpmap
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\bug_invert.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\hero1.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\hero2.png
