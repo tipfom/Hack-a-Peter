@@ -64,6 +64,7 @@
     <Compile Include="Scenes\ScreenOfDeath.cs" />
     <Compile Include="Scenes\SpaceShooterScene.cs" />
     <Compile Include="Scenes\StrategyScene.cs" />
+    <Compile Include="Scenes\Strategy\Button.cs" />
     <Compile Include="Scenes\Strategy\Tile.cs" />
     <Compile Include="Scenes\Strategy\Unit.cs" />
     <Compile Include="Scenes\Strategy\Weapon.cs" />
@@ -113,6 +114,24 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\textures\bug_invert.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\button_grenade.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\button_mg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\button_reload.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\button_smoke.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\button_walk.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\frame.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\textures\hero1.png">

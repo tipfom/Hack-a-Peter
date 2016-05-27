@@ -100,3 +100,9 @@ C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\bug_invert.png
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\hero1.png
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\hero2.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\button_grenade.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\button_mg.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\button_reload.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\button_smoke.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\button_walk.png
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\textures\frame.png

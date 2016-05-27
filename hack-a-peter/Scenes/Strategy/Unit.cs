@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace hack_a_peter.Scenes.Strategy
 {
+    public enum UnitButton
+    {
+        Walk, Reload, Gun, Greande, Smoke
+    }
     public enum UnitTexture
     {
-        Bug1,
-        Bug2,
-        Hero1,
-        Hero2
+        Bug1, Bug2, Hero1, Hero2
     }
     public class Unit
     {
@@ -32,6 +33,13 @@ namespace hack_a_peter.Scenes.Strategy
         {
             get { return _Armor; }
             set { _Armor = value; }
+        }
+
+        private int _MovementLeft;
+        public int MovementLeft
+        {
+            get { return _MovementLeft; }
+            set { _MovementLeft = value; }
         }
 
         private int _MoveSpeed;

@@ -8,7 +8,7 @@ namespace hack_a_peter.Scenes.Strategy
 {
     public class Weapon
     {
-        public void Apply(Tile[,] map)
+        public void Apply(Tile[,] map, int x, int y)
         {
 
         }
@@ -34,5 +34,21 @@ namespace hack_a_peter.Scenes.Strategy
             set { _Count = value; }
         }
 
+        private int _MaxCount;
+        public int MaxCount
+        {
+            get { return _MaxCount; }
+            set { _MaxCount = value; }
+        }
+    }
+    public class Gun : Weapon
+    {
+        public Gun()
+        {
+            Range = 5;
+            Reloadable = true;
+            Count = 3;
+            MaxCount = 3;
+        }
     }
 }
