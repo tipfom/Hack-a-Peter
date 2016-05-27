@@ -43,11 +43,11 @@ namespace hack_a_peter.Scenes
             }
         }
 
-        private Strategy.Tile[,] Field = new Strategy.Tile[1,1];
+        private Strategy.Tile[,] Field = new Strategy.Tile[1, 1];
         private Point Camera;
         private Point SelectedTile = new Point(0, 0);
         private MouseState PreviousState;
-        private HashSet<Point> FramesAt = new HashSet<Point>();
+        private List<Point> FramesAt = new List<Point>();
         private List<Button> Buttons = new List<Button>();
         private Point CurrentPos;
         private Unit CurrentUnit;
@@ -68,7 +68,7 @@ namespace hack_a_peter.Scenes
             Opponent.MoveSpeed = 5;
             Opponent.Weapons.Add(new Gun());
             Opponent.Texture = UnitTexture.Hero2;
-            Field[15, 9].Unit = Opponent;
+            Field[1, 4].Unit = Opponent;
             SelectedTile = new Point(0, 0);
             Camera = new Point(0, 0);
         }
@@ -97,7 +97,7 @@ namespace hack_a_peter.Scenes
                     }
                     if (Field[x, y].Unit != null)
                     {
-                        switch (Field[x,y].Unit.Texture)
+                        switch (Field[x, y].Unit.Texture)
                         {
                             case UnitTexture.Bug1:
                                 spriteBatch.Draw(Assets.Textures.Get("enemy1"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
@@ -126,7 +126,7 @@ namespace hack_a_peter.Scenes
             //Drawing the selected cursor
             spriteBatch.Draw(Assets.Textures.Get("selected"), new Rectangle(new Point(SelectedTile.X * 40 - Camera.X, SelectedTile.Y * 40 - Camera.Y), new Point(40, 40)), Color.White);
 
-            string TileInfo= "Tile Info";
+            string TileInfo = "Tile Info";
             try
             {
                 switch (Field[SelectedTile.X, SelectedTile.Y].Type)
@@ -149,7 +149,7 @@ namespace hack_a_peter.Scenes
             }
             catch (IndexOutOfRangeException)
             { }
-            spriteBatch.DrawString(Assets.Fonts.Get("14px"), TileInfo + " " + SelectedTile.ToString(), new Vector2(0, Game.WINDOW_HEIGHT - 30),Color.Black);
+            spriteBatch.DrawString(Assets.Fonts.Get("14px"), TileInfo + " " + SelectedTile.ToString(), new Vector2(0, Game.WINDOW_HEIGHT - 30), Color.Black);
 
             for (int i = 0; i < Buttons.Count; i++)
             {
@@ -202,6 +202,7 @@ namespace hack_a_peter.Scenes
             //MouseInput
             if (mouse.LeftButton == ButtonState.Pressed && PreviousState.LeftButton == ButtonState.Released)
             {
+                //Click auf Button
                 bool Handled = false;
                 foreach (Button OneButton in Buttons)
                 {
@@ -212,8 +213,17 @@ namespace hack_a_peter.Scenes
                     }
                 }
 
+                //Click auf Feld mit Rahmen
+                if (!Handled & FramesAt.Contains(SelectedTile))
+                {
+                    Field[SelectedTile.X, SelectedTile.Y].Unit = CurrentUnit;
+                    Field[CurrentPos.X, CurrentPos.Y].Unit = null;
+                    FramesAt.Clear();
+                }
+
                 Buttons.Clear();
 
+                //Click auf Spielfeld
                 if (Field[SelectedTile.X, SelectedTile.Y].Unit != null & !Handled)
                 {
                     CurrentUnit = Field[SelectedTile.X, SelectedTile.Y].Unit;
@@ -240,57 +250,65 @@ namespace hack_a_peter.Scenes
         {
             List<Point> Cache = new List<Point>();
             FramesAt.Clear();
-            Cache.AddRange(this.Expand(CurrentPos, CurrentUnit.MovementLeft));
-            FramesAt = new HashSet<Point>(Cache);
+            this.ExpandWalk(CurrentPos, CurrentUnit.MovementLeft);
         }
 
-        private Point[] Expand(Point pos, int count)
+        private Point[] ExpandWalk(Point pos, int count)
         {
             List<Point> ForReturn = new List<Point>();
+            AddToFrameList(pos);
             if (count == 1)
             {
-                if (this.Field[pos.X + 1, pos.Y].Type != 3)
+                if (pos.X + 1 < this.Field.GetLength(0) && this.Field[pos.X + 1, pos.Y].Type != 3)
                 {
-                    ForReturn.Add(pos + new Point(1, 0));
+                    AddToFrameList(pos + new Point(1, 0));
                 }
-                if (this.Field[pos.X - 1, pos.Y].Type != 3)
+                if (pos.X - 1 >= 0 && this.Field[pos.X - 1, pos.Y].Type != 3)
                 {
-                    ForReturn.Add(pos + new Point(-1, 0));
+                    AddToFrameList(pos + new Point(-1, 0));
                 }
-                if (this.Field[pos.X, pos.Y + 1].Type != 3)
+                if (pos.Y + 1 < this.Field.GetLength(1) && this.Field[pos.X, pos.Y + 1].Type != 3)
                 {
-                    ForReturn.Add(pos + new Point(0, 1));
+                    AddToFrameList(pos + new Point(0, 1));
                 }
-                if (this.Field[pos.X, pos.Y - 1].Type != 3)
+                if (pos.Y - 1 >= 0 && this.Field[pos.X, pos.Y - 1].Type != 3)
                 {
-                    ForReturn.Add(pos + new Point(0, -1));
+                    AddToFrameList(pos + new Point(0, -1));
                 }
             }
             else
             {
-                if (this.Field[pos.X + 1, pos.Y].Type != 3)
+                if (pos.X + 1 < this.Field.GetLength(0) && this.Field[pos.X + 1, pos.Y].Type != 3)
                 {
-                    ForReturn.AddRange(this.Expand(pos + new Point(1, 0), count - 1));
+                    this.ExpandWalk(pos + new Point(1, 0), count - 1);
                 }
-                if (this.Field[pos.X - 1, pos.Y].Type != 3)
+                if (pos.X - 1 >= 0 && this.Field[pos.X - 1, pos.Y].Type != 3)
                 {
-                    ForReturn.AddRange(this.Expand(pos + new Point(-1, 0), count - 1));
+                    this.ExpandWalk(pos + new Point(-1, 0), count - 1);
                 }
-                if (this.Field[pos.X, pos.Y + 1].Type != 3)
+                if (pos.Y + 1 < this.Field.GetLength(1) && this.Field[pos.X, pos.Y + 1].Type != 3)
                 {
-                    ForReturn.AddRange(this.Expand(pos + new Point(0, 1), count - 1));
+                    this.ExpandWalk(pos + new Point(0, 1), count - 1);
                 }
-                if (this.Field[pos.X, pos.Y - 1].Type != 3)
+                if (pos.Y - 1 >= 0 && this.Field[pos.X, pos.Y - 1].Type != 3)
                 {
-                    ForReturn.AddRange(this.Expand(pos + new Point(0, -1), count - 1));
+                    this.ExpandWalk(pos + new Point(0, -1), count - 1);
                 }
             }
             return ForReturn.ToArray();
         }
 
+        private void AddToFrameList(Point p)
+        {
+            if (!FramesAt.Contains(p))
+            {
+                FramesAt.Add(p);
+            }
+        }
+
         private void LoadMap(string path)
         {
-            bool there = File.Exists(path); 
+            bool there = File.Exists(path);
             StreamReader MyReader = new StreamReader(File.OpenRead(path));
             int Line = 0;
             while (!MyReader.EndOfStream)
