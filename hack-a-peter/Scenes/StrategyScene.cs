@@ -43,17 +43,20 @@ namespace hack_a_peter.Scenes
             }
         }
 
-        private Strategy.Tile[,] Field = new Strategy.Tile[1, 1];
+        private Tile[,] Field = new Strategy.Tile[1, 1];
         private Point Camera;
         private Point SelectedTile = new Point(0, 0);
         private MouseState PreviousState;
         private List<Point> FramesAt = new List<Point>();
         private List<Button> Buttons = new List<Button>();
+        private List<Unit> AllUnits = new List<Unit>();
+        private UnitButton SelectedButton;
         private Point CurrentPos;
         private Unit CurrentUnit;
 
         public override void Begin(EndData.EndData lastSceneEndData)
         {
+            AllUnits.Clear();
             Field = new Strategy.Tile[32, 32];
             for (int x = 0; x < Field.GetLength(0); x++)
             {
@@ -67,8 +70,20 @@ namespace hack_a_peter.Scenes
             Opponent.MovementLeft = 5;
             Opponent.MoveSpeed = 5;
             Opponent.Weapons.Add(new Gun());
-            Opponent.Texture = UnitTexture.Hero2;
-            Field[1, 4].Unit = Opponent;
+            Opponent.Texture = UnitTexture.Bug1;
+            Opponent.Owner = 1;
+            Opponent.Position = new Point(15, 9);
+            AllUnits.Add(Opponent);    
+
+            Unit CoolerTyp = new Unit();
+            CoolerTyp.MovementLeft = 5;
+            CoolerTyp.MoveSpeed = 5;
+            CoolerTyp.Weapons.Add(new Gun());
+            CoolerTyp.Texture = UnitTexture.Hero2;
+            CoolerTyp.Owner = 0;
+            CoolerTyp.Position = new Point(16, 13);
+            AllUnits.Add(CoolerTyp);
+
             SelectedTile = new Point(0, 0);
             Camera = new Point(0, 0);
         }
@@ -95,26 +110,28 @@ namespace hack_a_peter.Scenes
                             spriteBatch.Draw(Assets.Textures.Get("tile_impossible"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
                             break;
                     }
-                    if (Field[x, y].Unit != null)
-                    {
-                        switch (Field[x, y].Unit.Texture)
-                        {
-                            case UnitTexture.Bug1:
-                                spriteBatch.Draw(Assets.Textures.Get("enemy1"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
-                                break;
-                            case UnitTexture.Bug2:
-                                spriteBatch.Draw(Assets.Textures.Get("enemy2"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
-                                break;
-                            case UnitTexture.Hero1:
-                                spriteBatch.Draw(Assets.Textures.Get("hero1"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
-                                break;
-                            case UnitTexture.Hero2:
-                                spriteBatch.Draw(Assets.Textures.Get("hero2"), new Rectangle(new Point(x * 40 - Camera.X, y * 40 - Camera.Y), new Point(40, 40)), Color.White);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                }
+            }
+
+            //Drawing Units
+            foreach (Unit OneUnit in AllUnits)
+            {
+                switch (OneUnit.Texture)
+                {
+                    case UnitTexture.Bug1:
+                        spriteBatch.Draw(Assets.Textures.Get("enemy1"), new Rectangle(new Point(OneUnit.Position.X * 40 - Camera.X, OneUnit.Position.Y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                        break;
+                    case UnitTexture.Bug2:
+                        spriteBatch.Draw(Assets.Textures.Get("enemy2"), new Rectangle(new Point(OneUnit.Position.X * 40 - Camera.X, OneUnit.Position.Y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                        break;
+                    case UnitTexture.Hero1:
+                        spriteBatch.Draw(Assets.Textures.Get("hero1"), new Rectangle(new Point(OneUnit.Position.X * 40 - Camera.X, OneUnit.Position.Y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                        break;
+                    case UnitTexture.Hero2:
+                        spriteBatch.Draw(Assets.Textures.Get("hero2"), new Rectangle(new Point(OneUnit.Position.X * 40 - Camera.X, OneUnit.Position.Y * 40 - Camera.Y), new Point(40, 40)), Color.White);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -216,17 +233,36 @@ namespace hack_a_peter.Scenes
                 //Click auf Feld mit Rahmen
                 if (!Handled & FramesAt.Contains(SelectedTile))
                 {
-                    Field[SelectedTile.X, SelectedTile.Y].Unit = CurrentUnit;
-                    Field[CurrentPos.X, CurrentPos.Y].Unit = null;
-                    FramesAt.Clear();
+                    switch (SelectedButton)
+                    {
+                        case UnitButton.Walk:
+                            CurrentUnit.Position = SelectedTile;
+                            int Moved = Math.Abs(SelectedTile.X - CurrentPos.X) + Math.Abs(SelectedTile.Y - CurrentPos.Y);
+                            CurrentUnit.MovementLeft -= Moved;
+                            FramesAt.Clear();
+                            break;
+                        case UnitButton.Reload:
+                            break;
+                        case UnitButton.Gun:
+                            AllUnits.RemoveAll(u => u.Position == SelectedTile);
+                            FramesAt.Clear();
+                            break;
+                        case UnitButton.Greande:
+                            break;
+                        case UnitButton.Smoke:
+                            break;
+                        default:
+                            break;
+                    }
+                    SelectedButton = UnitButton.None;
                 }
 
                 Buttons.Clear();
 
                 //Click auf Spielfeld
-                if (Field[SelectedTile.X, SelectedTile.Y].Unit != null & !Handled)
+                if (AllUnits.Exists(u => u.Position == SelectedTile) & !Handled && AllUnits.First(u => u.Position == SelectedTile).Owner == 0)
                 {
-                    CurrentUnit = Field[SelectedTile.X, SelectedTile.Y].Unit;
+                    CurrentUnit = AllUnits.First(u => u.Position == SelectedTile);
                     CurrentPos = new Point(SelectedTile.X, SelectedTile.Y);
                     if (CurrentUnit.MovementLeft > 0)
                     {
@@ -238,7 +274,9 @@ namespace hack_a_peter.Scenes
                     {
                         if (OneWeapon.GetType() == typeof(Gun))
                         {
-                            Buttons.Add(new Button(UnitButton.Gun));
+                            Button NewButton = new Button(UnitButton.Gun);
+                            NewButton.OnClick += Gun_OnClick;
+                            Buttons.Add(NewButton);
                         }
                     }
                 }
@@ -251,51 +289,102 @@ namespace hack_a_peter.Scenes
             List<Point> Cache = new List<Point>();
             FramesAt.Clear();
             this.ExpandWalk(CurrentPos, CurrentUnit.MovementLeft);
+            SelectedButton = UnitButton.Walk;
         }
 
         private Point[] ExpandWalk(Point pos, int count)
         {
             List<Point> ForReturn = new List<Point>();
-            AddToFrameList(pos);
-            if (count == 1)
+            if (this.Field[pos.X, pos.Y].Type != 3 & !AllUnits.Exists(u => u.Position == pos))
             {
-                if (pos.X + 1 < this.Field.GetLength(0) && this.Field[pos.X + 1, pos.Y].Type != 3)
-                {
-                    AddToFrameList(pos + new Point(1, 0));
-                }
-                if (pos.X - 1 >= 0 && this.Field[pos.X - 1, pos.Y].Type != 3)
-                {
-                    AddToFrameList(pos + new Point(-1, 0));
-                }
-                if (pos.Y + 1 < this.Field.GetLength(1) && this.Field[pos.X, pos.Y + 1].Type != 3)
-                {
-                    AddToFrameList(pos + new Point(0, 1));
-                }
-                if (pos.Y - 1 >= 0 && this.Field[pos.X, pos.Y - 1].Type != 3)
-                {
-                    AddToFrameList(pos + new Point(0, -1));
-                }
+                AddToFrameList(pos);
             }
-            else
+            if (count != 0)         
             {
-                if (pos.X + 1 < this.Field.GetLength(0) && this.Field[pos.X + 1, pos.Y].Type != 3)
-                {
+                if (pos.X + 1 < this.Field.GetLength(0) & this.Field[pos.X + 1, pos.Y].Type != 3)
+                { 
                     this.ExpandWalk(pos + new Point(1, 0), count - 1);
                 }
-                if (pos.X - 1 >= 0 && this.Field[pos.X - 1, pos.Y].Type != 3)
+                if (pos.X - 1 >= 0 & this.Field[pos.X - 1, pos.Y].Type != 3)
                 {
                     this.ExpandWalk(pos + new Point(-1, 0), count - 1);
                 }
-                if (pos.Y + 1 < this.Field.GetLength(1) && this.Field[pos.X, pos.Y + 1].Type != 3)
+                if (pos.Y + 1 < this.Field.GetLength(1) & this.Field[pos.X, pos.Y + 1].Type != 3)
                 {
                     this.ExpandWalk(pos + new Point(0, 1), count - 1);
                 }
-                if (pos.Y - 1 >= 0 && this.Field[pos.X, pos.Y - 1].Type != 3)
+                if (pos.Y - 1 >= 0 & this.Field[pos.X, pos.Y - 1].Type != 3)
                 {
                     this.ExpandWalk(pos + new Point(0, -1), count - 1);
                 }
             }
             return ForReturn.ToArray();
+        }
+
+        private void Gun_OnClick(object sender, EventArgs e)
+        {
+            SelectedButton = UnitButton.Gun;
+            foreach (Unit OneUnit in AllUnits)
+            {
+                int Distance = Math.Abs(OneUnit.Position.X - CurrentPos.X) + Math.Abs(OneUnit.Position.Y - CurrentPos.Y);
+                if (Distance <= new Gun().Range & Distance != 0 && Visible(OneUnit.Position, CurrentPos))
+                {
+                    AddToFrameList(OneUnit.Position);
+                }
+            }   
+        }
+
+        private bool Visible(Point p, Point q)
+        {
+            if (p.X - q.X == 0)
+            {
+                int min = 0;
+                int max = 0;
+                if (p.Y < q.Y)
+                {
+                    min = p.Y;
+                    max = q.Y;
+                }
+                else
+                {
+                    min = q.Y;
+                    max = p.Y;
+                }
+                for (int i = min; i < max; i++)
+                {
+                    if (this.Field[p.X, i].Type == 3)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                //Schlechtestes RayTracing aller Zeiten
+                float m = ((float)p.Y - (float)q.Y) / ((float)p.X - (float)q.X);
+                float n = (float)p.Y - m * (float)p.X;
+                float min = 0;
+                float max = 0;
+                if (p.X < q.X)
+                {
+                    min = p.X;
+                    max = q.X;
+                }
+                else
+                {
+                    min = q.X;
+                    max = p.X;
+                }
+                for (float i = min; i < max; i += 0.1f)
+                {
+                    float y = m * i + n;
+                    if (this.Field[Convert.ToInt32(Math.Floor((double)i)), Convert.ToInt32(Math.Floor((double)y))].Type == 3)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private void AddToFrameList(Point p)

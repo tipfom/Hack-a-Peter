@@ -29,11 +29,11 @@ namespace hack_a_peter.Scenes.Strategy
             set { _Type = value; }
         }
 
-        private Unit _Unit;
-        public Unit Unit
-        {
-            get { return _Unit; }
-            set { _Unit = value; }
-        }
+        //private Unit _Unit;
+        //public Unit Unit
+        //{
+        //    get { return _Unit; }
+        //    set { _Unit = value; }
+        //}
     }
 }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace hack_a_peter.Scenes.Strategy
 {
     public enum UnitButton
     {
-        Walk, Reload, Gun, Greande, Smoke
+        Walk, Reload, Gun, Greande, Smoke, None
     }
     public enum UnitTexture
     {
@@ -47,6 +48,23 @@ namespace hack_a_peter.Scenes.Strategy
         {
             get { return _MoveSpeed; }
             set { _MoveSpeed = value; }
+        }
+
+        //0... Player
+        //1... KI
+        private int _Owner;
+        public int Owner
+        {
+            get { return _Owner; }
+            set { _Owner = value; }
+        }
+
+        private Point _Position;
+        public Point Position
+
+        {
+            get { return _Position; }
+            set { _Position = value; }
         }
 
         private UnitTexture _Texture;
