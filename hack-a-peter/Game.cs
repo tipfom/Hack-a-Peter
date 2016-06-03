@@ -1,10 +1,13 @@
-﻿using System;
+﻿using hack_a_peter.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Windows.Forms;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
+using MainMenu = hack_a_peter.Scenes.MainMenu;
 
-namespace hack_a_peter
-{
+namespace hack_a_peter {
     /*
         Hallo Erik. :)
                                                                                     Tim was here ...
@@ -29,10 +32,10 @@ namespace hack_a_peter
 
         VIEL SPAß, GL HAVE FUN.
          */
-    class Game : Microsoft.Xna.Framework.Game
-    {
+    class Game : Microsoft.Xna.Framework.Game {
         public const bool USE_VSYNC = true;
         public const bool USE_ANTIALISING = false;
+        public const bool USE_FULLSCREEN = false;
         public const int WINDOW_WIDTH = 1024;
         public const int WINDOW_HEIGHT = 768;
         public const string WINDOW_TITLE = @"¯\_(ツ)_/¯          Hack-A-Peter the Game          (╯°□°）╯︵ ┻━┻";
@@ -44,21 +47,28 @@ namespace hack_a_peter
         public static Color GB4 { get { return new Color(15, 56, 15); } }
 
         // visual variables
-        private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
+        private GraphicsDeviceManager globalGraphics;
+        private SpriteBatch globalSpriteBatch;
 
         private SceneList sceneList;
         private int timePlayedTotal;
+        private bool currentlyShowsIntro;
         private Random random;
 
-        public Game()
-        {
+        private Viewport gameViewport;
+        private Viewport globalViewport;
+
+        public Game( ) {
             // init graphics
-            graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
-            graphics.PreferredBackBufferWidth = WINDOW_WIDTH;
-            graphics.PreferMultiSampling = USE_ANTIALISING;
-            graphics.ApplyChanges();
+            globalGraphics = new GraphicsDeviceManager(this);
+            globalGraphics.IsFullScreen = USE_FULLSCREEN;
+            globalGraphics.PreferMultiSampling = USE_ANTIALISING;
+            globalGraphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
+            globalGraphics.PreferredBackBufferWidth = WINDOW_WIDTH;
+            globalGraphics.ApplyChanges( );
+
+            Window.AllowUserResizing = true;
+            Window.ClientSizeChanged += Window_ClientSizeChanged;
 
             // set content directory
             Content.RootDirectory = "Assets";
@@ -69,77 +79,107 @@ namespace hack_a_peter
             this.Window.Title = WINDOW_TITLE;
         }
 
-        protected override void LoadContent()
-        {
+        private void Window_ClientSizeChanged(object sender, EventArgs e) {
+            UpdateGraphics( );
+        }
+
+        protected override void LoadContent( ) {
             Assets.Load("main.init", this.Content);
-            foreach (Scene scene in sceneList)
-            {
+            foreach (Scene scene in sceneList) {
                 Assets.Load(scene.InitFile, this.Content);
             }
         }
 
-        protected override void Draw(GameTime gameTime)
-        {
+        protected override void Draw(GameTime gameTime) {
             // clear screen
             this.GraphicsDevice.Clear(sceneList.CurrentScene.BackColor);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
+            globalSpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
 
-            sceneList.CurrentScene.Draw(spriteBatch);
+            GraphicsDevice.Viewport = globalViewport;
+            // globaldrawing here
+
+            GraphicsDevice.Viewport = gameViewport;
+            if (currentlyShowsIntro)
+                sceneList.CurrentScene.DrawIntro(globalSpriteBatch);
+            else
+                sceneList.CurrentScene.Draw(globalSpriteBatch);
 
 #if DEBUG
             // draw info
-            spriteBatch.DrawString(Assets.Fonts.Get("12px"), "fps : " + (1000f / gameTime.ElapsedGameTime.Milliseconds).ToString("00.00") + " #hyperSpeed", new Vector2(1, 1), Color.Black);
+            globalSpriteBatch.DrawString(Assets.Fonts.Get("12px"), "fps : " + (1000f / gameTime.ElapsedGameTime.Milliseconds).ToString("00.00") + " #hyperSpeed", new Vector2(1, 1), Color.Black);
 #endif
-            spriteBatch.End();
+            globalSpriteBatch.End( );
         }
 
-        protected override void Initialize()
-        {
+        protected override void Initialize( ) {
             random = new Random(CURRENT_SEED);
-            spriteBatch = new SpriteBatch(this.GraphicsDevice);
+            globalSpriteBatch = new SpriteBatch(this.GraphicsDevice);
+
             sceneList = new SceneList(OnFinished,
-                new Scenes.MainMenu(),
-                new Scenes.ScreenOfDeath(),
-                new Scenes.SpaceShooterScene(random.Next(int.MinValue, int.MaxValue)),
-                new Scenes.MinesweeperScene(random.Next(int.MinValue, int.MaxValue)),
-                new Scenes.LabyrinthScene(random.Next(int.MinValue,int.MaxValue), spriteBatch.GraphicsDevice));
+                new MainMenu( ),
+                new ScreenOfDeath( ),
+                new SpaceShooterScene(random.Next(int.MinValue, int.MaxValue)),
+                new MinesweeperScene(random.Next(int.MinValue, int.MaxValue)),
+                new LabyrinthScene(random.Next(int.MinValue, int.MaxValue), globalSpriteBatch.GraphicsDevice),
+                new StrategyScene( ));
 
-            base.Initialize();
+            UpdateViewports( );
+            base.Initialize( );
         }
 
-        protected override void UnloadContent()
-        {
-            Content.Unload();
+        private void UpdateGraphics( ) {
+            if (globalGraphics.PreferredBackBufferWidth == Window.ClientBounds.Width &&
+                globalGraphics.PreferredBackBufferHeight == Window.ClientBounds.Height)
+                return;
+
+            globalGraphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
+            globalGraphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
+            globalGraphics.ApplyChanges( );
+
+            UpdateViewports( );
         }
 
-        protected override void Update(GameTime gameTime)
-        {
+        private void UpdateViewports( ) {
+            globalViewport = new Viewport(0, SystemInformation.CaptionHeight, globalGraphics.PreferredBackBufferHeight, globalGraphics.PreferredBackBufferWidth);
+            Point gamePosition = new Point(
+                (globalGraphics.PreferredBackBufferWidth - WINDOW_WIDTH) / 2,
+                (globalGraphics.PreferredBackBufferHeight - WINDOW_HEIGHT) / 2 + SystemInformation.CaptionHeight
+                );
+            gameViewport = new Viewport(gamePosition.X, gamePosition.Y, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
+        }
+
+        protected override void UnloadContent( ) {
+            Content.Unload( );
+        }
+
+        protected override void Update(GameTime gameTime) {
             timePlayedTotal += gameTime.ElapsedGameTime.Milliseconds;
 
-            sceneList.CurrentScene.Update(gameTime.ElapsedGameTime.Milliseconds, Keyboard.GetState(), Mouse.GetState());
+            if (Keyboard.GetState( ).IsKeyDown(Keys.Space))
+                currentlyShowsIntro = false;
+            if (!currentlyShowsIntro)
+                sceneList.CurrentScene.Update(gameTime.ElapsedGameTime.Milliseconds, Keyboard.GetState( ), Mouse.GetState( ));
 
             this.IsMouseVisible = sceneList.CurrentScene.IsMouseVisible;
             base.Update(gameTime);
         }
 
-        private void OnFinished(string nextScene, EndData.EndData endData)
-        {
-            if (endData.LastScene == SceneList.MAIN_MENU_NAME)
+        private void OnFinished(string nextScene, EndData.EndData endData) {
+            if (endData.LastScene == MainMenu.NAME)
                 timePlayedTotal = 0;
             endData.TimePlayed = timePlayedTotal;
 
-            if (sceneList.SetScene(nextScene))
-            {
+            if (sceneList.SetScene(nextScene)) {
                 Console.WriteLine("set scene to " + nextScene);
                 sceneList.CurrentScene.Begin(endData);
-            }
-            else
-            {
+            } else {
                 Console.WriteLine("failed to set scene " + nextScene + ", returning to main menu");
-                sceneList.SetScene(SceneList.MAIN_MENU_NAME);
+                sceneList.SetScene(MainMenu.NAME);
             }
             sceneList.CurrentScene.Begin(endData);
+
+            currentlyShowsIntro = sceneList.CurrentScene.HasIntro;
         }
     }
 }

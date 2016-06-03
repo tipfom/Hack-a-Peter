@@ -1,35 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using hack_a_peter.EndData;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 
-namespace hack_a_peter.Scenes
-{
-    public class LabyrinthScene : Scene
-    {
+namespace hack_a_peter.Scenes {
+    public class LabyrinthScene : Scene {
+        public const string NAME = "game_labyrinth";
+
         const int LABYRINTH_SIZE = 30;
         const int LABYRINTH_DRAW_SIZE = 12;
         const int DEATH_TIME = 150;
         const int TEXT_FADE_TIME = 300;
 
-        string startText = $"YOU GOT {DEATH_TIME} SECONDS TO REACH THE BOTTOM LEFT CORNER OF THE LABYRINTH!\n" +
-                            "GOOD LUCK\n" +
-                            "PRESS SPACE TO CONTINUE";
+        public override string Intro {
+            get {
+                return
+                     $"YOU GOT {DEATH_TIME} SECONDS TO REACH THE BOTTOM LEFT CORNER OF THE LABYRINTH!\n" +
+                      "GOOD LUCK\n";
+            }
+        }
 
         public override Color BackColor { get { return Game.GB4; } }
         public override string InitFile { get { return "labyrinth.init"; } }
         public override bool IsMouseVisible { get { return false; } }
-        public override string Name { get { return "scene_labyrinth"; } }
+        public override string Name { get { return NAME; } }
 
-        private Connection[,] labyrinth;
+        private Connection[ , ] labyrinth;
         private Random random;
-        private Color[][,] colors;
+        private Color[ ][ , ] colors;
         private Texture2D rectTexture;
         private Point playerPosition;
 
@@ -39,19 +40,16 @@ namespace hack_a_peter.Scenes
         private int steps;
         private Timer deathTimer;
         private int remainingSeconds;
-        private bool started = false;
         private int textTime;
 
-        public LabyrinthScene(int seed, GraphicsDevice g)
-        {
+        public LabyrinthScene(int seed, GraphicsDevice g) {
             random = new Random(seed);
             rectTexture = new Texture2D(g, 1, 1);
-            rectTexture.SetData(new Color[] { Color.White });
+            rectTexture.SetData(new Color[ ] { Color.White });
         }
 
-        public override void Begin(EndData.EndData lastSceneEndData)
-        {
-            colors = new Color[][,]
+        public override void Begin(EndData.EndData lastSceneEndData) {
+            colors = new Color[ ][ , ]
             {
                 new Color[,] // 0
                 {
@@ -165,41 +163,35 @@ namespace hack_a_peter.Scenes
             deathTimer = new Timer(1000);
             deathTimer.Elapsed += (object sender, ElapsedEventArgs e) => { remainingSeconds--; Console.WriteLine(remainingSeconds); textTime = TEXT_FADE_TIME; };
 
-            GenerateLabyrinth();
+            GenerateLabyrinth( );
         }
 
-        private void GenerateLabyrinth()
-        {
+        private void GenerateLabyrinth( ) {
             // create and reset labyrinth
             labyrinth = new Connection[LABYRINTH_SIZE, LABYRINTH_SIZE];
 
             // build some connections \o/
-            HashSet<Point> visited = new HashSet<Point>();
-            Stack<Point> stack = new Stack<Point>();
+            HashSet<Point> visited = new HashSet<Point>( );
+            Stack<Point> stack = new Stack<Point>( );
             Point currentCell = new Point(0, 0);//new Point(random.Next(0, LABYRINTH_SIZE), random.Next(0, LABYRINTH_SIZE));
             visited.Add(currentCell);
 
-            while (visited.Count < LABYRINTH_SIZE * LABYRINTH_SIZE)
-            {
-                List<Point> cellNeighbours = GetCellNeighbours(currentCell).Where(cell => !visited.Contains(cell)).ToList();
-                if (cellNeighbours.Count > 0)
-                {
+            while (visited.Count < LABYRINTH_SIZE * LABYRINTH_SIZE) {
+                List<Point> cellNeighbours = GetCellNeighbours(currentCell).Where(cell => !visited.Contains(cell)).ToList( );
+                if (cellNeighbours.Count > 0) {
                     stack.Push(currentCell);
                     int selectedNeighbour = random.Next(0, cellNeighbours.Count);
                     Connect(currentCell, cellNeighbours[selectedNeighbour]);
                     currentCell = cellNeighbours[selectedNeighbour];
                     visited.Add(cellNeighbours[selectedNeighbour]);
-                }
-                else if (stack.Count > 0)
-                {
-                    currentCell = stack.Pop();
+                } else if (stack.Count > 0) {
+                    currentCell = stack.Pop( );
                 }
             }
         }
 
-        private List<Point> GetCellNeighbours(Point cell)
-        {
-            List<Point> neighbours = new List<Point>();
+        private List<Point> GetCellNeighbours(Point cell) {
+            List<Point> neighbours = new List<Point>( );
             if (cell.X > 0)
                 neighbours.Add(new Point(cell.X - 1, cell.Y));
             if (cell.X < LABYRINTH_SIZE - 1)
@@ -211,52 +203,31 @@ namespace hack_a_peter.Scenes
             return neighbours;
         }
 
-        private void Connect(Point cell1, Point cell2)
-        {
-            if (cell1.X > cell2.X)
-            {
+        private void Connect(Point cell1, Point cell2) {
+            if (cell1.X > cell2.X) {
                 labyrinth[cell1.X, cell1.Y] |= Connection.West;
                 labyrinth[cell2.X, cell2.Y] |= Connection.East;
-            }
-            else if (cell1.X < cell2.X)
-            {
+            } else if (cell1.X < cell2.X) {
                 labyrinth[cell1.X, cell1.Y] |= Connection.East;
                 labyrinth[cell2.X, cell2.Y] |= Connection.West;
-            }
-            else if (cell1.Y > cell2.Y)
-            {
+            } else if (cell1.Y > cell2.Y) {
                 labyrinth[cell1.X, cell1.Y] |= Connection.North;
                 labyrinth[cell2.X, cell2.Y] |= Connection.South;
-            }
-            else if (cell1.Y < cell2.Y)
-            {
+            } else if (cell1.Y < cell2.Y) {
                 labyrinth[cell1.X, cell1.Y] |= Connection.South;
                 labyrinth[cell2.X, cell2.Y] |= Connection.North;
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            if (!started)
-            {
-                SpriteFont font = Assets.Fonts.Get("14px");
-                Vector2 textSize = font.MeasureString(startText);
-                spriteBatch.DrawString(font, startText, new Vector2(Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT) / 2 - textSize / 2, Game.GB2);
-                return;
-            }
-
+        public override void Draw(SpriteBatch spriteBatch) {
             int size = Game.WINDOW_HEIGHT / LABYRINTH_DRAW_SIZE;
             int squaresize = size / 3;
-            for (int x = 0; x < LABYRINTH_DRAW_SIZE; x++)
-            {
-                for (int y = 0; y < LABYRINTH_DRAW_SIZE; y++)
-                {
+            for (int x = 0; x < LABYRINTH_DRAW_SIZE; x++) {
+                for (int y = 0; y < LABYRINTH_DRAW_SIZE; y++) {
                     int index = (int)labyrinth[x + scrollPosition.X, y + scrollPosition.Y];
-                    Color[,] rectColor = colors[index];
-                    for (int xr = 0; xr < 3; xr++)
-                    {
-                        for (int yr = 0; yr < 3; yr++)
-                        {
+                    Color[ , ] rectColor = colors[index];
+                    for (int xr = 0; xr < 3; xr++) {
+                        for (int yr = 0; yr < 3; yr++) {
                             Rectangle drawRectangle = new Rectangle(
                                 drawBeginPosition.X + x * size + xr * squaresize,
                                 drawBeginPosition.Y + y * size + yr * squaresize,
@@ -273,30 +244,20 @@ namespace hack_a_peter.Scenes
             playerColor.A = 100;
             spriteBatch.Draw(rectTexture, new Rectangle(drawBeginPosition.X + playerPositionOnScreen.X * size, drawBeginPosition.Y + playerPositionOnScreen.Y * size, size, size), playerColor);
 
-            if (textTime > 0)
-            {
+            if (textTime > 0) {
                 // draw time
                 SpriteFont font = Assets.Fonts.Get("72px");
-                Vector2 textSize = font.MeasureString(remainingSeconds.ToString());
-                spriteBatch.DrawString(font, remainingSeconds.ToString(), new Vector2(Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT) / 2 - textSize / 2, Game.GB3);
+                Vector2 textSize = font.MeasureString(remainingSeconds.ToString( ));
+                spriteBatch.DrawString(font, remainingSeconds.ToString( ), new Vector2(Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT) / 2 - textSize / 2, Game.GB3);
             }
         }
 
 
         bool goneUp, goneDown, goneLeft, goneRight;
-        public override void Update(int dt, KeyboardState keyboard, MouseState mouse)
-        {
-            if (!started && keyboard.IsKeyDown(Keys.Space))
-            {
-                started = true;
-                deathTimer.Start();
-            }
-
-            if (!started)
-                return;
-
-            if (remainingSeconds <= 0)
-            {
+        public override void Update(int dt, KeyboardState keyboard, MouseState mouse) {
+            if (!deathTimer.Enabled)
+                deathTimer.Start( );
+            if (remainingSeconds <= 0) {
                 throw new IndexOutOfRangeException("noob!!11");
             }
 
@@ -305,26 +266,19 @@ namespace hack_a_peter.Scenes
             if (playerPosition.X == LABYRINTH_SIZE - 1 && playerPosition.Y == LABYRINTH_SIZE - 1)
                 throw new IndexOutOfRangeException("hurraaaa!!!111elf111!!!");
 
-            if ((keyboard.IsKeyDown(Keys.Down) || keyboard.IsKeyDown(Keys.S)) && !goneDown && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.South))
-            {
+            if ((keyboard.IsKeyDown(Keys.Down) || keyboard.IsKeyDown(Keys.S)) && !goneDown && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.South)) {
                 playerPosition.Y = Math.Min(playerPosition.Y + 1, LABYRINTH_SIZE - 1);
                 goneDown = true;
                 steps++;
-            }
-            else if ((keyboard.IsKeyDown(Keys.Up) || keyboard.IsKeyDown(Keys.W)) && !goneUp && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.North))
-            {
+            } else if ((keyboard.IsKeyDown(Keys.Up) || keyboard.IsKeyDown(Keys.W)) && !goneUp && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.North)) {
                 playerPosition.Y = Math.Max(playerPosition.Y - 1, 0);
                 goneUp = true;
                 steps++;
-            }
-            else if ((keyboard.IsKeyDown(Keys.Left) || keyboard.IsKeyDown(Keys.A)) && !goneLeft && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.West))
-            {
+            } else if ((keyboard.IsKeyDown(Keys.Left) || keyboard.IsKeyDown(Keys.A)) && !goneLeft && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.West)) {
                 playerPosition.X = Math.Max(playerPosition.X - 1, 0);
                 goneLeft = true;
                 steps++;
-            }
-            else if ((keyboard.IsKeyDown(Keys.Right) || keyboard.IsKeyDown(Keys.D)) && !goneRight && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.East))
-            {
+            } else if ((keyboard.IsKeyDown(Keys.Right) || keyboard.IsKeyDown(Keys.D)) && !goneRight && labyrinth[playerPosition.X, playerPosition.Y].HasFlag(Connection.East)) {
                 playerPosition.X = Math.Min(playerPosition.X + 1, LABYRINTH_SIZE - 1);
                 goneRight = true;
                 steps++;
@@ -358,8 +312,7 @@ namespace hack_a_peter.Scenes
         }
 
         [Flags]
-        public enum Connection
-        {
+        public enum Connection {
             None = 0,
             North = 1,
             South = 2,

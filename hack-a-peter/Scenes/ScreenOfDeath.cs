@@ -1,11 +1,14 @@
-﻿using System;
-using hack_a_peter.EndData;
+﻿using hack_a_peter.EndData;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Timers;
 
 namespace hack_a_peter.Scenes {
     class ScreenOfDeath : Scene {
+        public const string NAME = "menu_death";
+
         private const string ENDSCREEN_TEXT =
             "A problem has been detected and Windows has been shut down to prevent damage\n" +
             "to your computer.\n" +
@@ -35,30 +38,40 @@ namespace hack_a_peter.Scenes {
             "*** PRESS ANY KEY TO REBOOT"; // time played
 
         public override bool IsMouseVisible { get { return false; } }
-        public override Color BackColor { get { return new Color (0, 0, 128); } }
+        public override Color BackColor { get { return new Color(0, 0, 128); } }
         public override string InitFile { get { return "deathscreen.init"; } }
-        public override string Name { get { return "death_screen"; } }
+        public override string Name { get { return NAME; } }
 
         private int score;
         private string screenText;
+        private bool acceptsKeys = false;
 
-        public ScreenOfDeath () : base () {
+        public ScreenOfDeath( ) : base( ) {
 
         }
 
-        public override void Begin (EndData.EndData lastSceneEndData)
-        {
-            if (lastSceneEndData.GetType () == typeof (GameEndData)) {
+        public override void Begin(EndData.EndData lastSceneEndData) {
+            if (lastSceneEndData.GetType( ) == typeof(GameEndData)) {
                 score = ((GameEndData)lastSceneEndData).FinishedScore;
             } else {
-                Console.WriteLine ("end screen got called without the lastSceneData of a Game :(");
+                Console.WriteLine("end screen got called without the lastSceneData of a Game :(");
                 score = 0;
             }
-            screenText = String.Format (ENDSCREEN_TEXT, lastSceneEndData.LastScene, score, (lastSceneEndData.TimePlayed / 1000f).ToString ());
+            screenText = String.Format(ENDSCREEN_TEXT, lastSceneEndData.LastScene, score, (lastSceneEndData.TimePlayed / 1000f).ToString( ));
+
+            acceptsKeys = false;
+            Timer inputEnableTimer = new Timer(4000);
+            inputEnableTimer.Elapsed += (sender, e) => { acceptsKeys = true; inputEnableTimer.Stop( ); };
+            inputEnableTimer.Start( );
         }
 
-        public override void Draw (SpriteBatch spriteBatch) {
-            spriteBatch.DrawString (Assets.Fonts.Get ("bluescreenfont"), screenText, new Vector2 (0, 10), Color.White);
+        public override void Draw(SpriteBatch spriteBatch) {
+            spriteBatch.DrawString(Assets.Fonts.Get("bluescreenfont"), screenText, new Vector2(0, 10), Color.White);
+        }
+
+        public override void Update(int dt, KeyboardState keyboard, MouseState mouse) {
+            if (keyboard.GetPressedKeys( ).Length > 0 && acceptsKeys)
+                OnFinished(MainMenu.NAME, new EndData.EndData(Name));
         }
     }
 }
