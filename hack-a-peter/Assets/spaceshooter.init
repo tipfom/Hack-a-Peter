@@ -1,2 +1,3 @@
-﻿T spacecraft "spacecraft.png"
-T bug "bug.png"
+﻿T space_craft "spacecraft.png"
+T space_bug "bug.png"
+T space_background "space_background.png"

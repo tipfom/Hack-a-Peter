@@ -5,10 +5,10 @@ using Microsoft.Xna.Framework.Input;
 namespace hack_a_peter {
     public abstract class Scene {
         // this part needs to be overwritten with scene-specific values (e.g. Scenes/MainMenu.cs)
-        public virtual string InitFile { get { return null; } }
+        public abstract string InitFile { get;  }
         public virtual Color BackColor { get { return new Color (0, 0, 170); } } // Windows XP BSOD-Color
         public virtual bool IsMouseVisible { get { return false; } } // can change while the game is running
-        public virtual string Name { get { return null; } }
+        public abstract string Name { get; }
 
         public int Score;
 

@@ -13,5 +13,15 @@ namespace hack_a_peter
         {
             return new Vector2(vec3.X, vec3.Y);
         }
+
+        public static bool ContainsRange<T>(this HashSet<T> set, IEnumerable<T> collection)
+        {
+            foreach (T element in collection)
+            {
+                if (!set.Contains(element))
+                    return false;
+            }
+            return true;
+        }
     }
 }

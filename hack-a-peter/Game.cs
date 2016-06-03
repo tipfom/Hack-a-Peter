@@ -38,10 +38,15 @@ namespace hack_a_peter
         public const string WINDOW_TITLE = @"¯\_(ツ)_/¯          Hack-A-Peter the Game          (╯°□°）╯︵ ┻━┻";
         public const int CURRENT_SEED = 1337;
 
+        public static Color GB1 { get { return new Color(156, 189, 15); } }
+        public static Color GB2 { get { return new Color(140, 173, 15); } }
+        public static Color GB3 { get { return new Color(48, 98, 48); } }
+        public static Color GB4 { get { return new Color(15, 56, 15); } }
+
         // visual variables
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        
+
         private SceneList sceneList;
         private int timePlayedTotal;
         private Random random;
@@ -96,8 +101,9 @@ namespace hack_a_peter
             sceneList = new SceneList(OnFinished,
                 new Scenes.MainMenu(),
                 new Scenes.ScreenOfDeath(),
-                new Scenes.SpaceShooterScene(random.Next(int.MinValue,int.MaxValue)),
-                new Scenes.StrategyScene());
+                new Scenes.SpaceShooterScene(random.Next(int.MinValue, int.MaxValue)),
+                new Scenes.MinesweeperScene(random.Next(int.MinValue, int.MaxValue)),
+                new Scenes.LabyrinthScene(random.Next(int.MinValue,int.MaxValue), spriteBatch.GraphicsDevice));
 
             base.Initialize();
         }

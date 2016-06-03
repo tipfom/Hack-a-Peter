@@ -1,0 +1,6 @@
+﻿T labyrinth_none "passierbar.png"
+T labyrinth_cross "wand_kreuzung.png"
+T labyrinth_t "wand_T.png"
+T labyrinth_curve "wand_ecke.png"
+T labyrinth_straight "wand_gerade.png"
+T labyrinth_end "wand_ende.png"
