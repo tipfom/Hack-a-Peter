@@ -8,7 +8,7 @@ namespace hack_a_peter.Scenes.Strategy
 {
     public class Weapon
     {
-        public void Apply(Tile[,] map, int x, int y)
+        public virtual void Apply(Tile[,] map, List<Unit> units, int x, int y)
         {
 
         }
@@ -49,6 +49,32 @@ namespace hack_a_peter.Scenes.Strategy
             Reloadable = true;
             Count = 3;
             MaxCount = 3;
+        }
+
+        public override void Apply(Tile[,] map, List<Unit> units, int x, int y)
+        {
+            int BaseDamage = 1;
+            Random Rng = new Random();
+            switch (map[x,y].Type)
+            {
+                case 0:
+                    BaseDamage += Rng.Next(1, 4);
+                    break;
+                case 1:
+                    BaseDamage += Rng.Next(1, 3);
+                    break;
+                case 2:
+                    BaseDamage += Rng.Next(0, 2);
+                    break;
+                default:
+                    break;
+            }
+            Unit Damaged = units.First(u => u.Position == new Microsoft.Xna.Framework.Point(x, y));
+            Damaged.Health -= BaseDamage;
+            if(Damaged.Health <= 0)
+            {
+                units.Remove(Damaged);
+            }
         }
     }
 }

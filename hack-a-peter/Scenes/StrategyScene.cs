@@ -43,6 +43,9 @@ namespace hack_a_peter.Scenes
             }
         }
 
+        //0 = Player 1 = AI
+        private int ActivePlayer;
+        private int InactivePlayer;
         private Tile[,] Field = new Strategy.Tile[1, 1];
         private Point Camera;
         private Point SelectedTile = new Point(0, 0);
@@ -50,7 +53,7 @@ namespace hack_a_peter.Scenes
         private List<Point> FramesAt = new List<Point>();
         private List<Button> Buttons = new List<Button>();
         private List<Unit> AllUnits = new List<Unit>();
-        private UnitButton SelectedButton;
+        private ButtonTexture SelectedButton;
         private Point CurrentPos;
         private Unit CurrentUnit;
 
@@ -66,24 +69,32 @@ namespace hack_a_peter.Scenes
                 }
             }
             this.LoadMap(Environment.CurrentDirectory + "\\Assets\\main.hpmap");
-            Unit Opponent = new Unit();
-            Opponent.MovementLeft = 5;
-            Opponent.MoveSpeed = 5;
-            Opponent.Weapons.Add(new Gun());
-            Opponent.Texture = UnitTexture.Bug1;
-            Opponent.Owner = 1;
-            Opponent.Position = new Point(15, 9);
-            AllUnits.Add(Opponent);    
+            Unit OpponentUnit = new Unit();
+            OpponentUnit.Health = 20;
+            OpponentUnit.MovementLeft = 5;
+            OpponentUnit.MoveSpeed = 5;
+            OpponentUnit.Weapons.Add(new Gun());
+            OpponentUnit.Texture = UnitTexture.Bug1;
+            OpponentUnit.Owner = 1;
+            OpponentUnit.Position = new Point(15, 13);
+            AllUnits.Add(OpponentUnit);    
 
             Unit CoolerTyp = new Unit();
+            CoolerTyp.Health = 20;
             CoolerTyp.MovementLeft = 5;
             CoolerTyp.MoveSpeed = 5;
             CoolerTyp.Weapons.Add(new Gun());
             CoolerTyp.Texture = UnitTexture.Hero2;
             CoolerTyp.Owner = 0;
-            CoolerTyp.Position = new Point(16, 13);
+            CoolerTyp.Position = new Point(15, 9);
             AllUnits.Add(CoolerTyp);
 
+            Button TurnEndButton = new Button(ButtonTexture.EndTurn);
+            TurnEndButton.OnClick += EndTurn_OnClick;
+            Buttons.Add(TurnEndButton);
+
+            ActivePlayer = 0;
+            InactivePlayer = 1;
             SelectedTile = new Point(0, 0);
             Camera = new Point(0, 0);
         }
@@ -135,6 +146,7 @@ namespace hack_a_peter.Scenes
                 }
             }
 
+            //Drawing Frames
             foreach (Point OnePoint in FramesAt)
             {
                 spriteBatch.Draw(Assets.Textures.Get("frame"), new Rectangle(((OnePoint) * new Point(40, 40) - Camera), new Point(40, 40)), Color.White);
@@ -168,22 +180,27 @@ namespace hack_a_peter.Scenes
             { }
             spriteBatch.DrawString(Assets.Fonts.Get("14px"), TileInfo + " " + SelectedTile.ToString(), new Vector2(0, Game.WINDOW_HEIGHT - 30), Color.Black);
 
+            //Drawing Buttons
             for (int i = 0; i < Buttons.Count; i++)
             {
                 Buttons[i].Rectangle = new Rectangle(240 + i * 100, Game.WINDOW_HEIGHT - 40, 80, 40);
                 switch (Buttons[i].Texture)
                 {
-                    case UnitButton.Walk:
+                    case ButtonTexture.Walk:
                         spriteBatch.Draw(Assets.Textures.Get("button_walk"), Buttons[i].Rectangle, Color.White);
                         break;
-                    case UnitButton.Reload:
+                    case ButtonTexture.Reload:
                         break;
-                    case UnitButton.Gun:
+                    case ButtonTexture.Gun:
                         spriteBatch.Draw(Assets.Textures.Get("button_mg"), Buttons[i].Rectangle, Color.White);
                         break;
-                    case UnitButton.Greande:
+                    case ButtonTexture.Greande:
                         break;
-                    case UnitButton.Smoke:
+                    case ButtonTexture.Smoke:
+                        break;
+                    case ButtonTexture.EndTurn:
+                        Buttons[i].Rectangle = new Rectangle(Game.WINDOW_WIDTH - 100, Game.WINDOW_HEIGHT - 40, 80, 40);
+                        spriteBatch.Draw(Assets.Textures.Get("button_endturn"), Buttons[i].Rectangle, Color.White);
                         break;
                     default:
                         break;
@@ -217,7 +234,7 @@ namespace hack_a_peter.Scenes
             SelectedTile.X = (SelectedTile.X > this.Field.GetLength(0) - 1) ? this.Field.GetLength(0) - 1 : SelectedTile.X;
             SelectedTile.Y = (SelectedTile.Y > this.Field.GetLength(1) - 1) ? this.Field.GetLength(1) - 1 : SelectedTile.Y;
             //MouseInput
-            if (mouse.LeftButton == ButtonState.Pressed && PreviousState.LeftButton == ButtonState.Released)
+            if (mouse.LeftButton == ButtonState.Pressed && PreviousState.LeftButton == ButtonState.Released && ActivePlayer == 0)
             {
                 //Click auf Button
                 bool Handled = false;
@@ -235,26 +252,29 @@ namespace hack_a_peter.Scenes
                 {
                     switch (SelectedButton)
                     {
-                        case UnitButton.Walk:
+                        case ButtonTexture.Walk:
                             CurrentUnit.Position = SelectedTile;
                             int Moved = Math.Abs(SelectedTile.X - CurrentPos.X) + Math.Abs(SelectedTile.Y - CurrentPos.Y);
                             CurrentUnit.MovementLeft -= Moved;
                             FramesAt.Clear();
                             break;
-                        case UnitButton.Reload:
+                        case ButtonTexture.Reload:
                             break;
-                        case UnitButton.Gun:
-                            AllUnits.RemoveAll(u => u.Position == SelectedTile);
+                        case ButtonTexture.Gun:
+                            new Gun().Apply(this.Field, this.AllUnits, SelectedTile.X, SelectedTile.Y);
+                            //AllUnits.RemoveAll(u => u.Position == SelectedTile);
                             FramesAt.Clear();
                             break;
-                        case UnitButton.Greande:
+                        case ButtonTexture.Greande:
                             break;
-                        case UnitButton.Smoke:
+                        case ButtonTexture.Smoke:
+                            break;
+                        case ButtonTexture.EndTurn:
                             break;
                         default:
                             break;
                     }
-                    SelectedButton = UnitButton.None;
+                    SelectedButton = ButtonTexture.None;
                 }
 
                 Buttons.Clear();
@@ -266,7 +286,7 @@ namespace hack_a_peter.Scenes
                     CurrentPos = new Point(SelectedTile.X, SelectedTile.Y);
                     if (CurrentUnit.MovementLeft > 0)
                     {
-                        Button NewButton = new Button(UnitButton.Walk);
+                        Button NewButton = new Button(ButtonTexture.Walk);
                         NewButton.OnClick += Walk_OnClick;
                         Buttons.Add(NewButton);
                     }
@@ -274,12 +294,16 @@ namespace hack_a_peter.Scenes
                     {
                         if (OneWeapon.GetType() == typeof(Gun))
                         {
-                            Button NewButton = new Button(UnitButton.Gun);
+                            Button NewButton = new Button(ButtonTexture.Gun);
                             NewButton.OnClick += Gun_OnClick;
                             Buttons.Add(NewButton);
                         }
                     }
                 }
+
+                Button TurnEndButton = new Button(ButtonTexture.EndTurn);
+                TurnEndButton.OnClick += EndTurn_OnClick;
+                Buttons.Add(TurnEndButton);
             }
             PreviousState = mouse;
         }
@@ -289,7 +313,7 @@ namespace hack_a_peter.Scenes
             List<Point> Cache = new List<Point>();
             FramesAt.Clear();
             this.ExpandWalk(CurrentPos, CurrentUnit.MovementLeft);
-            SelectedButton = UnitButton.Walk;
+            SelectedButton = ButtonTexture.Walk;
         }
 
         private Point[] ExpandWalk(Point pos, int count)
@@ -323,23 +347,23 @@ namespace hack_a_peter.Scenes
 
         private void Gun_OnClick(object sender, EventArgs e)
         {
-            SelectedButton = UnitButton.Gun;
+            SelectedButton = ButtonTexture.Gun;
             foreach (Unit OneUnit in AllUnits)
             {
                 int Distance = Math.Abs(OneUnit.Position.X - CurrentPos.X) + Math.Abs(OneUnit.Position.Y - CurrentPos.Y);
-                if (Distance <= new Gun().Range & Distance != 0 && Visible(OneUnit.Position, CurrentPos))
+                if (Distance <= new Gun().Range & Distance != 0 & OneUnit.Owner == InactivePlayer && Visible(OneUnit.Position.ToVector2() + new Vector2(0.5f,0.5f), CurrentPos.ToVector2() + new Vector2(0.5f, 0.5f)))
                 {
                     AddToFrameList(OneUnit.Position);
                 }
             }   
         }
 
-        private bool Visible(Point p, Point q)
+        private bool Visible(Vector2 p, Vector2 q)
         {
             if (p.X - q.X == 0)
             {
-                int min = 0;
-                int max = 0;
+                float min = 0;
+                float max = 0;
                 if (p.Y < q.Y)
                 {
                     min = p.Y;
@@ -350,9 +374,9 @@ namespace hack_a_peter.Scenes
                     min = q.Y;
                     max = p.Y;
                 }
-                for (int i = min; i < max; i++)
+                for (float i = min; i < max; i++)
                 {
-                    if (this.Field[p.X, i].Type == 3)
+                    if (this.Field[Convert.ToInt32(Math.Abs(p.X)), Convert.ToInt32(Math.Abs(i))].Type == 3)
                     {
                         return false;
                     }
@@ -360,7 +384,7 @@ namespace hack_a_peter.Scenes
             }
             else
             {
-                //Schlechtestes RayTracing aller Zeiten
+                //Schlechtestes RayTracing aller Zeiten :O
                 float m = ((float)p.Y - (float)q.Y) / ((float)p.X - (float)q.X);
                 float n = (float)p.Y - m * (float)p.X;
                 float min = 0;
@@ -385,6 +409,31 @@ namespace hack_a_peter.Scenes
                 }
             }
             return true;
+        }
+
+        private void EndTurn_OnClick(object sender, EventArgs e)
+        {
+            if (ActivePlayer == 0)
+            {
+                ActivePlayer = 1;
+                InactivePlayer = 0;
+            }
+            else
+            {
+                ActivePlayer = 0;
+                InactivePlayer = 1;
+            }
+
+            foreach (Unit OneUnit in this.AllUnits.Where(u => u.Owner == ActivePlayer))
+            {
+                OneUnit.MovementLeft = OneUnit.MoveSpeed;
+            }
+
+            if (ActivePlayer == 1)
+            {
+                //Execute Turn for AI
+                this.EndTurn_OnClick(sender, e);
+            }
         }
 
         private void AddToFrameList(Point p)

@@ -117,6 +117,9 @@
     <Content Include="Assets\textures\bug_invert.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\textures\button_endturn.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\textures\button_grenade.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

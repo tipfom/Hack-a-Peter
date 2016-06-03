@@ -7,10 +7,6 @@ using Microsoft.Xna.Framework;
 
 namespace hack_a_peter.Scenes.Strategy
 {
-    public enum UnitButton
-    {
-        Walk, Reload, Gun, Greande, Smoke, None
-    }
     public enum UnitTexture
     {
         Bug1, Bug2, Hero1, Hero2

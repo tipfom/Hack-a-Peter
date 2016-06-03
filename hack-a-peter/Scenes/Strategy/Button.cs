@@ -7,9 +7,14 @@ using Microsoft.Xna.Framework;
 
 namespace hack_a_peter.Scenes.Strategy
 {
+    public enum ButtonTexture
+    {
+        Walk, Reload, Gun, Greande, Smoke, EndTurn, None
+    }
+
     public class Button
     {
-        public Button(UnitButton texture)
+        public Button(ButtonTexture texture)
         {
             Texture = texture;
         }
@@ -24,8 +29,8 @@ namespace hack_a_peter.Scenes.Strategy
             set { _Rectangle = value; }
         }
 
-        private UnitButton _Texture;
-        public UnitButton Texture
+        private ButtonTexture _Texture;
+        public ButtonTexture Texture
         {
             get { return _Texture; }
             set { _Texture = value; }
