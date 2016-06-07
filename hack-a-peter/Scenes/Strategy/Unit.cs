@@ -25,6 +25,14 @@ namespace hack_a_peter.Scenes.Strategy
             set { _Health = value; }
         }
 
+        private int _MaxHealth;
+        public int MaxHealth
+        {
+            get { return _MaxHealth; }
+            set { _MaxHealth = value; }
+        }
+
+
         private int _Armor;
         public int Armor
         {
@@ -75,6 +83,13 @@ namespace hack_a_peter.Scenes.Strategy
         {
             get { return _Weapons; }
             set { _Weapons = value; }
+        }
+
+        public Color GetColorByHealth()
+        {
+            //Current/Max = x/255
+            int Value = Convert.ToInt32((float)Health / (float)MaxHealth * 255f);
+            return new Color(255, Value, Value, 255);
         }
     }
 }

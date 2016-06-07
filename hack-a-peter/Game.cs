@@ -141,10 +141,10 @@ namespace hack_a_peter {
         }
 
         private void UpdateViewports( ) {
-            globalViewport = new Viewport(0, SystemInformation.CaptionHeight, globalGraphics.PreferredBackBufferHeight, globalGraphics.PreferredBackBufferWidth);
+            globalViewport = new Viewport(0, 0, globalGraphics.PreferredBackBufferHeight, globalGraphics.PreferredBackBufferWidth);
             Point gamePosition = new Point(
                 (globalGraphics.PreferredBackBufferWidth - WINDOW_WIDTH) / 2,
-                (globalGraphics.PreferredBackBufferHeight - WINDOW_HEIGHT) / 2 + SystemInformation.CaptionHeight
+                (globalGraphics.PreferredBackBufferHeight - WINDOW_HEIGHT) / 2
                 );
             gameViewport = new Viewport(gamePosition.X, gamePosition.Y, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
         }
