@@ -283,7 +283,7 @@ namespace hack_a_peter.Scenes
                             break;
                         case ButtonTexture.Gun:
                             CurrentUnit.Weapons[0].Count -= 1;
-                            new Gun().Apply(this.Field, this.AllUnits, SelectedTile.X, SelectedTile.Y);
+                            CurrentUnit.Weapons[0].Apply(this.Field, this.AllUnits, SelectedTile.X, SelectedTile.Y);
                             FramesAt.Clear();
                             RemoveUnits();
                             break;
@@ -511,7 +511,7 @@ namespace hack_a_peter.Scenes
                     int Distance = Math.Abs(MyUnit.Position.X - Opponent.Position.X) + Math.Abs(MyUnit.Position.Y - Opponent.Position.Y);
                     if (Distance <= new Gun().Range && Visible(MyUnit.Position.ToVector2(), Opponent.Position.ToVector2()))
                     {
-                        new Gun().Apply(this.Field, this.AllUnits, Opponent.Position.X, Opponent.Position.Y);
+                        MyUnit.Weapons[0].Apply(this.Field, this.AllUnits, Opponent.Position.X, Opponent.Position.Y);
                     }
                 }
             }
