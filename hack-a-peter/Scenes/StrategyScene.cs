@@ -17,7 +17,7 @@ namespace hack_a_peter.Scenes
         {
             get
             {
-                return Color.Pink;
+                return Game.GB2;
             }
         }
         public override string InitFile
@@ -45,7 +45,7 @@ namespace hack_a_peter.Scenes
         {
             get
             {
-                return "Warnung: Kompliziert!";
+                return "In this game you have to destroy all Bugs using your heros.\nTo move or shoot with units you have to select them and click the according button\n You can only shoot once per turn und you can only move along some tiles\nTip: Standing in a cover reduces damge taken";
             }
         }
 
@@ -74,50 +74,14 @@ namespace hack_a_peter.Scenes
                     Field[x, y] = new Strategy.Tile();
                 }
             }
-            this.LoadMap(Environment.CurrentDirectory + "\\Assets\\main.hpmap");
-            Unit OpponentUnit = new Unit();
-            OpponentUnit.Health = 20;
-            OpponentUnit.MaxHealth = 20;
-            OpponentUnit.MovementLeft = 5;
-            OpponentUnit.MoveSpeed = 5;
-            OpponentUnit.Weapons.Add(new Gun());
-            OpponentUnit.Texture = UnitTexture.Bug1;
-            OpponentUnit.Owner = 1;
-            OpponentUnit.Position = new Point(15, 9);
-            AllUnits.Add(OpponentUnit);
+            this.LoadMap(Environment.CurrentDirectory + "\\Assets\\strategy.lvl");
 
-            Unit OpponentUnit2 = new Unit();
-            OpponentUnit2.Health = 20;
-            OpponentUnit2.MaxHealth = 20;
-            OpponentUnit2.MovementLeft = 5;
-            OpponentUnit2.MoveSpeed = 5;
-            OpponentUnit2.Weapons.Add(new Gun());
-            OpponentUnit2.Texture = UnitTexture.Bug2;
-            OpponentUnit2.Owner = 1;
-            OpponentUnit2.Position = new Point(10, 10);
-            AllUnits.Add(OpponentUnit2);
+            AllUnits.Add(this.BuildOpponent(new Point(2, 31), UnitTexture.Bug1));
+            AllUnits.Add(this.BuildOpponent(new Point(3, 31), UnitTexture.Bug2));
+            AllUnits.Add(this.BuildOpponent(new Point(4, 31), UnitTexture.Bug2));
 
-            Unit OpponentUnit3 = new Unit();
-            OpponentUnit3.Health = 20;
-            OpponentUnit3.MaxHealth = 20;
-            OpponentUnit3.MovementLeft = 5;
-            OpponentUnit3.MoveSpeed = 5;
-            OpponentUnit3.Weapons.Add(new Gun());
-            OpponentUnit3.Texture = UnitTexture.Bug2;
-            OpponentUnit3.Owner = 1;
-            OpponentUnit3.Position = new Point(8, 17);
-            AllUnits.Add(OpponentUnit3);
-
-            Unit CoolerTyp = new Unit();
-            CoolerTyp.Health = 20;
-            CoolerTyp.MaxHealth = 20;
-            CoolerTyp.MovementLeft = 5;
-            CoolerTyp.MoveSpeed = 5;
-            CoolerTyp.Weapons.Add(new Gun());
-            CoolerTyp.Texture = UnitTexture.Hero2;
-            CoolerTyp.Owner = 0;
-            CoolerTyp.Position = new Point(15, 13);
-            AllUnits.Add(CoolerTyp);
+            AllUnits.Add(this.BuildCoolerTyp(new Point(7, 0), UnitTexture.Hero1));
+            AllUnits.Add(this.BuildCoolerTyp(new Point(7, 1), UnitTexture.Hero2));
 
             Button TurnEndButton = new Button(ButtonTexture.EndTurn);
             TurnEndButton.OnClick += EndTurn_OnClick;
@@ -127,6 +91,34 @@ namespace hack_a_peter.Scenes
             InactivePlayer = 1;
             SelectedTile = new Point(0, 0);
             Camera = new Point(0, 0);
+        }
+
+        private Unit BuildOpponent(Point position, UnitTexture texture)
+        {
+            Unit OpponentUnit = new Unit();
+            OpponentUnit.Health = 18;
+            OpponentUnit.MaxHealth = 18;
+            OpponentUnit.MovementLeft = 3;
+            OpponentUnit.MoveSpeed = 3;
+            OpponentUnit.Weapons.Add(new Gun());
+            OpponentUnit.Texture = texture;
+            OpponentUnit.Owner = 1;
+            OpponentUnit.Position = position;
+            return OpponentUnit;
+        }
+
+        private Unit BuildCoolerTyp(Point position, UnitTexture texture)
+        {
+            Unit CoolerTyp = new Unit();
+            CoolerTyp.Health = 20;
+            CoolerTyp.MaxHealth = 20;
+            CoolerTyp.MovementLeft = 5;
+            CoolerTyp.MoveSpeed = 5;
+            CoolerTyp.Weapons.Add(new Gun());
+            CoolerTyp.Texture = texture;
+            CoolerTyp.Owner = 0;
+            CoolerTyp.Position = position;
+            return CoolerTyp;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -290,9 +282,10 @@ namespace hack_a_peter.Scenes
                         case ButtonTexture.Reload:
                             break;
                         case ButtonTexture.Gun:
+                            CurrentUnit.Weapons[0].Count -= 1;
                             new Gun().Apply(this.Field, this.AllUnits, SelectedTile.X, SelectedTile.Y);
-                            //AllUnits.RemoveAll(u => u.Position == SelectedTile);
                             FramesAt.Clear();
+                            RemoveUnits();
                             break;
                         case ButtonTexture.Greande:
                             break;
@@ -321,7 +314,7 @@ namespace hack_a_peter.Scenes
                     }
                     foreach (Weapon OneWeapon in CurrentUnit.Weapons)
                     {
-                        if (OneWeapon.GetType() == typeof(Gun))
+                        if (OneWeapon.GetType() == typeof(Gun) && OneWeapon.Count > 0)
                         {
                             Button NewButton = new Button(ButtonTexture.Gun);
                             NewButton.OnClick += Gun_OnClick;
@@ -459,6 +452,10 @@ namespace hack_a_peter.Scenes
             foreach (Unit OneUnit in this.AllUnits.Where(u => u.Owner == ActivePlayer))
             {
                 OneUnit.MovementLeft = OneUnit.MoveSpeed;
+                foreach (Weapon OneWeapon in OneUnit.Weapons)
+                {
+                    OneWeapon.Count = OneWeapon.MaxCount;
+                }
             }
 
             if (ActivePlayer == 1)
@@ -476,58 +473,38 @@ namespace hack_a_peter.Scenes
             }
         }
 
+        private void RemoveUnits()
+        {
+            AllUnits.RemoveAll(u => u.Health <= 0);
+            if (!AllUnits.Exists(u => u.Owner == 0))
+            {
+                OnFinished(ScreenOfDeath.NAME, new EndData.GameEndData(0, StrategyScene.NAME));
+            }
+            if (!AllUnits.Exists(u => u.Owner == 1))
+            {
+                OnFinished(MainMenu.NAME, null);
+            }
+        }
+
         private void DoAITurn()
         {
             Unit MainTarget = this.AllUnits.First(u => u.Owner == 0);
             foreach (Unit MyUnit in this.AllUnits.Where(u => u.Owner == 1))
             {
-                float Direction;
-                if (MyUnit.Position.X - MainTarget.Position.X == 0)
-                {
-                    Direction = float.PositiveInfinity;
-                }
-                else
-                {
-                    Direction = ((float)MyUnit.Position.Y - (float)MainTarget.Position.Y) / ((float)MyUnit.Position.X - (float)MainTarget.Position.X);
-                }
                 Point[] Possible = this.ExpandWalk(MyUnit.Position, MyUnit.MovementLeft);
+                Dictionary<Point, int> Valueation = new Dictionary<Point, int>();
+                foreach (Point OnePoint in Possible)
+                {
+                    int Distance = Math.Abs(MainTarget.Position.X - OnePoint.X) + Math.Abs(MainTarget.Position.Y - OnePoint.Y);
+                    if (!Valueation.Keys.Contains(OnePoint))
+                    {
+                        Valueation.Add(OnePoint, Distance - this.Field[OnePoint.X, OnePoint.Y].Type);
+                    }
+                }
 
-                int Y = 0;
-                if (MainTarget.Position.X > MyUnit.Position.X)
-                {
-                    Direction = -Direction;
-                }
-                if (Direction > 0)
-                {
-                    Y = Possible.Select(p => p.Y).Min();
-                    int Index = Possible.Select(p => p.Y).ToList().IndexOf(Y);
-                    Point MoveTo = Possible[Index];
-                    MyUnit.Position = MoveTo;
-                }
-                if (Direction < 0)
-                {
-                    Y = Possible.Select(p => p.Y).Max();
-                    int Index = Possible.Select(p => p.Y).ToList().IndexOf(Y);
-                    Point MoveTo = Possible[Index];
-                    MyUnit.Position = MoveTo;
-                }
-                if (Direction == 0)
-                {
-                    if (MainTarget.Position.X > MyUnit.Position.X)
-                    {
-                        int X = Possible.Select(p => p.X).Max();
-                        int Index = Possible.Select(p => p.X).ToList().IndexOf(X);
-                        Point MoveTo = Possible[Index];
-                        MyUnit.Position = MoveTo;
-                    }
-                    else
-                    {
-                        int X = Possible.Select(p => p.X).Min();
-                        int Index = Possible.Select(p => p.X).ToList().IndexOf(X);
-                        Point MoveTo = Possible[Index];
-                        MyUnit.Position = MoveTo;
-                    }
-                }
+                int Max = Valueation.Values.Min();
+                int Index = new List<int>(Valueation.Values).IndexOf(Max);
+                MyUnit.Position = new List<Point>(Valueation.Keys)[Index];
 
                 foreach (Unit Opponent in this.AllUnits.Where(u => u.Owner == 0))
                 {
@@ -538,6 +515,7 @@ namespace hack_a_peter.Scenes
                     }
                 }
             }
+            RemoveUnits();
         }
 
         private void LoadMap(string path)

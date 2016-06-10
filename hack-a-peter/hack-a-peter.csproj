@@ -74,6 +74,9 @@
     <Compile Include="Scenes\Strategy\Weapon.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\strategy.lvl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Assets\strategy.init">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

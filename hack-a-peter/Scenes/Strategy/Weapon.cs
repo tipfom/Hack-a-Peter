@@ -47,8 +47,8 @@ namespace hack_a_peter.Scenes.Strategy
         {
             Range = 5;
             Reloadable = true;
-            Count = 3;
-            MaxCount = 3;
+            Count = 1;
+            MaxCount = 1;
         }
 
         public override void Apply(Tile[,] map, List<Unit> units, int x, int y)
@@ -71,10 +71,6 @@ namespace hack_a_peter.Scenes.Strategy
             }
             Unit Damaged = units.First(u => u.Position == new Microsoft.Xna.Framework.Point(x, y));
             Damaged.Health -= BaseDamage;
-            if(Damaged.Health <= 0)
-            {
-                units.Remove(Damaged);
-            }
         }
     }
 }
