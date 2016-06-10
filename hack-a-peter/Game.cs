@@ -122,7 +122,8 @@ namespace hack_a_peter {
                 new SpaceShooterScene(random.Next(int.MinValue, int.MaxValue)),
                 new MinesweeperScene(random.Next(int.MinValue, int.MaxValue)),
                 new LabyrinthScene(random.Next(int.MinValue, int.MaxValue), globalSpriteBatch.GraphicsDevice),
-                new StrategyScene( ));
+                new StrategyScene( ),
+                new WinScene());
 
             UpdateViewports( );
             base.Initialize( );

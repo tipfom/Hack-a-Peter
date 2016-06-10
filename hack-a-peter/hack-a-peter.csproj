@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Win.init">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Compile Include="EndData\EndData.cs" />
     <Compile Include="EndData\GameEndData.cs" />
     <Compile Include="Extensions.cs" />
@@ -72,6 +75,7 @@
     <Compile Include="Scenes\Strategy\Tile.cs" />
     <Compile Include="Scenes\Strategy\Unit.cs" />
     <Compile Include="Scenes\Strategy\Weapon.cs" />
+    <Compile Include="Scenes\WinScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\strategy.lvl">

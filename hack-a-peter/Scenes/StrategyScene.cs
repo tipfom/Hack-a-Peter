@@ -482,7 +482,7 @@ namespace hack_a_peter.Scenes
             }
             if (!AllUnits.Exists(u => u.Owner == 1))
             {
-                OnFinished(MainMenu.NAME, null);
+                OnFinished(MainMenu.NAME, new EndData.EndData(StrategyScene.NAME));
             }
         }
 

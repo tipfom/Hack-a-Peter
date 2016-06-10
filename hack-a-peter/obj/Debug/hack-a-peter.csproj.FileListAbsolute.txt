@@ -247,3 +247,4 @@ C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\SharpDX
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\MonoGame.Framework.xml
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\obj\Debug\hack-a-peter.csprojResolveAssemblyReference.cache
 C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\strategy.lvl
+C:\Users\sgsschueri\Documents\GitHub\Hack-a-Peter\hack-a-peter\bin\Debug\Assets\Win.init
