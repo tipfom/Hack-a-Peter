@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace hack_a_peter.Scenes.Strategy
 {
@@ -71,6 +72,38 @@ namespace hack_a_peter.Scenes.Strategy
             }
             Unit Damaged = units.First(u => u.Position == new Microsoft.Xna.Framework.Point(x, y));
             Damaged.Health -= BaseDamage;
+        }
+    }
+    public class Grenade : Weapon
+    {
+        public Grenade()
+        {
+            Range = 5;
+            Reloadable = false;
+            Count = 1;
+            MaxCount = 1;
+        }
+
+        public override void Apply(Tile[,] map, List<Unit> units, int x, int y)
+        {
+            Point[] Affected = new Point[5];
+            Affected[0] = new Point(x, y);
+            Affected[1] = new Point(x + 1, y);
+            Affected[2] = new Point(x - 1, y);
+            Affected[3] = new Point(x, y + 1);
+            Affected[4] = new Point(x, y - 1);
+
+            foreach (Point OnePoint in Affected)
+            {
+                if (map[OnePoint.X, OnePoint.Y].Type > 0)
+                {
+                    map[OnePoint.X, OnePoint.Y].Type -= 1;
+                }
+                if(units.Exists(u => u.Position == OnePoint))
+                {
+                    units.First(u => u.Position == OnePoint).Health -= 2;
+                }
+            }
         }
     }
 }

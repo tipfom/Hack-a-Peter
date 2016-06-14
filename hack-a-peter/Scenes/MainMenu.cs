@@ -38,7 +38,7 @@ namespace hack_a_peter.Scenes {
         public override void Update(int dt, KeyboardState keyboard, MouseState mouse) {
             rotation += dt;
 
-            OnFinished(WinScene.NAME, new EndData.GameEndData(1337, this.Name));
+            OnFinished(StrategyScene.NAME, new EndData.GameEndData(1337, this.Name));
         }
     }
 }

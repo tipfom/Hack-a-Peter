@@ -101,6 +101,7 @@ namespace hack_a_peter.Scenes
             OpponentUnit.MovementLeft = 3;
             OpponentUnit.MoveSpeed = 3;
             OpponentUnit.Weapons.Add(new Gun());
+            OpponentUnit.Weapons.Add(new Grenade());
             OpponentUnit.Texture = texture;
             OpponentUnit.Owner = 1;
             OpponentUnit.Position = position;
@@ -115,6 +116,7 @@ namespace hack_a_peter.Scenes
             CoolerTyp.MovementLeft = 5;
             CoolerTyp.MoveSpeed = 5;
             CoolerTyp.Weapons.Add(new Gun());
+            CoolerTyp.Weapons.Add(new Grenade());
             CoolerTyp.Texture = texture;
             CoolerTyp.Owner = 0;
             CoolerTyp.Position = position;
@@ -215,7 +217,8 @@ namespace hack_a_peter.Scenes
                     case ButtonTexture.Gun:
                         spriteBatch.Draw(Assets.Textures.Get("button_mg"), Buttons[i].Rectangle, Color.White);
                         break;
-                    case ButtonTexture.Greande:
+                    case ButtonTexture.Grenade:
+                        spriteBatch.Draw(Assets.Textures.Get("button_grenade"), Buttons[i].Rectangle, Color.White);
                         break;
                     case ButtonTexture.Smoke:
                         break;
@@ -287,7 +290,11 @@ namespace hack_a_peter.Scenes
                             FramesAt.Clear();
                             RemoveUnits();
                             break;
-                        case ButtonTexture.Greande:
+                        case ButtonTexture.Grenade:
+                            CurrentUnit.Weapons[1].Count -= 1;
+                            CurrentUnit.Weapons[1].Apply(this.Field, this.AllUnits, SelectedTile.X, SelectedTile.Y);
+                            FramesAt.Clear();
+                            RemoveUnits();
                             break;
                         case ButtonTexture.Smoke:
                             break;
@@ -320,6 +327,12 @@ namespace hack_a_peter.Scenes
                             NewButton.OnClick += Gun_OnClick;
                             Buttons.Add(NewButton);
                         }
+                        if (OneWeapon.GetType() == typeof(Grenade) && OneWeapon.Count > 0)
+                        {
+                            Button NewButton = new Button(ButtonTexture.Grenade);
+                            NewButton.OnClick += Grenade_OnClick;
+                            Buttons.Add(NewButton);
+                        }
                     }
                 }
 
@@ -333,7 +346,7 @@ namespace hack_a_peter.Scenes
         private void Walk_OnClick(object sender, EventArgs e)
         {
             List<Point> Cache = new List<Point>();
-            FramesAt.Clear();         
+            FramesAt.Clear();
             foreach (Point OnePoint in this.ExpandWalk(CurrentPos, CurrentUnit.MovementLeft))
             {
                 AddToFrameList(OnePoint);
@@ -379,6 +392,27 @@ namespace hack_a_peter.Scenes
                 if (Distance <= new Gun().Range & Distance != 0 & OneUnit.Owner == InactivePlayer && Visible(OneUnit.Position.ToVector2() + new Vector2(0.5f, 0.5f), CurrentPos.ToVector2() + new Vector2(0.5f, 0.5f)))
                 {
                     AddToFrameList(OneUnit.Position);
+                }
+            }
+        }
+
+        private void Grenade_OnClick(object sender, EventArgs e)
+        {
+            Grenade MyGrenade = new Grenade();
+            SelectedButton = ButtonTexture.Grenade;
+            for (int x = -MyGrenade.Range; x <= MyGrenade.Range; x++)
+            {
+                int Diff = MyGrenade.Range - Math.Abs(x);
+                for (int y = -Diff; y <= Diff; y++)
+                {
+                    Point TargetPoint = CurrentPos + new Point(x, y);
+                    if (TargetPoint.X >= 0 & TargetPoint.X < Field.GetLength(0) & TargetPoint.Y >= 0 & TargetPoint.Y < Field.GetLength(1))
+                    {
+                        if (Visible(CurrentPos.ToVector2(), TargetPoint.ToVector2()))
+                        {
+                            AddToFrameList(TargetPoint);
+                        }
+                    }
                 }
             }
         }
@@ -454,7 +488,10 @@ namespace hack_a_peter.Scenes
                 OneUnit.MovementLeft = OneUnit.MoveSpeed;
                 foreach (Weapon OneWeapon in OneUnit.Weapons)
                 {
-                    OneWeapon.Count = OneWeapon.MaxCount;
+                    if (OneWeapon.Reloadable)
+                    {
+                        OneWeapon.Count = OneWeapon.MaxCount;
+                    }
                 }
             }
 
@@ -509,7 +546,11 @@ namespace hack_a_peter.Scenes
                 foreach (Unit Opponent in this.AllUnits.Where(u => u.Owner == 0))
                 {
                     int Distance = Math.Abs(MyUnit.Position.X - Opponent.Position.X) + Math.Abs(MyUnit.Position.Y - Opponent.Position.Y);
-                    if (Distance <= new Gun().Range && Visible(MyUnit.Position.ToVector2(), Opponent.Position.ToVector2()))
+                    if (Distance <= MyUnit.Weapons[1].Range && MyUnit.Weapons[1].Count > 0 && Field[Opponent.Position.X, Opponent.Position.Y].Type > 0 && Visible(MyUnit.Position.ToVector2(), Opponent.Position.ToVector2()))
+                    {
+                        MyUnit.Weapons[1].Apply(this.Field, this.AllUnits, Opponent.Position.X, Opponent.Position.Y);
+                    }
+                    else if (Distance <= new Gun().Range && Visible(MyUnit.Position.ToVector2(), Opponent.Position.ToVector2()))
                     {
                         MyUnit.Weapons[0].Apply(this.Field, this.AllUnits, Opponent.Position.X, Opponent.Position.Y);
                     }

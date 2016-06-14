@@ -9,7 +9,7 @@ namespace hack_a_peter.Scenes.Strategy
 {
     public enum ButtonTexture
     {
-        Walk, Reload, Gun, Greande, Smoke, EndTurn, None
+        Walk, Reload, Gun, Grenade, Smoke, EndTurn, None
     }
 
     public class Button
