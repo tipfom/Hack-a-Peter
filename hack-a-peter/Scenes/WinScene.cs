@@ -44,7 +44,7 @@ namespace hack_a_peter.Scenes
         {
             get
             {
-                return "You sccusessfully hacked Peter's Computer.\nHis mum is angry now.";
+                return "You successfully hacked Peter's Computer.\nHis mum is angry now.";
             }
         }
 

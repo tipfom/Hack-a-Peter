@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>
@@ -53,9 +55,55 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Win.init">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Compile Include="Box2DX\Box2DXDebug.cs" />
+    <Compile Include="Box2DX\Collision\BroadPhase.cs" />
+    <Compile Include="Box2DX\Collision\Collision.CollideCircle.cs" />
+    <Compile Include="Box2DX\Collision\Collision.CollideEdge.cs" />
+    <Compile Include="Box2DX\Collision\Collision.CollidePoly.cs" />
+    <Compile Include="Box2DX\Collision\Collision.cs" />
+    <Compile Include="Box2DX\Collision\Collision.Distance.cs" />
+    <Compile Include="Box2DX\Collision\Collision.TimeOfImpact.cs" />
+    <Compile Include="Box2DX\Collision\PairManager.cs" />
+    <Compile Include="Box2DX\Collision\Shapes\CircleShape.cs" />
+    <Compile Include="Box2DX\Collision\Shapes\EdgeShape.cs" />
+    <Compile Include="Box2DX\Collision\Shapes\PolygonShape.cs" />
+    <Compile Include="Box2DX\Collision\Shapes\Shape.cs" />
+    <Compile Include="Box2DX\Common\Mat22.cs" />
+    <Compile Include="Box2DX\Common\Mat33.cs" />
+    <Compile Include="Box2DX\Common\Math.cs" />
+    <Compile Include="Box2DX\Common\Settings.cs" />
+    <Compile Include="Box2DX\Common\Sweep.cs" />
+    <Compile Include="Box2DX\Common\Vec2.cs" />
+    <Compile Include="Box2DX\Common\Vec3.cs" />
+    <Compile Include="Box2DX\Common\XForm.cs" />
+    <Compile Include="Box2DX\Dynamics\Body.cs" />
+    <Compile Include="Box2DX\Dynamics\ContactManager.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\CircleContact.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\Contact.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\ContactSolver.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\EdgeAndCircleContact.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\NullContact.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\PolyAndCircleContact.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\PolyAndEdgeContact.cs" />
+    <Compile Include="Box2DX\Dynamics\Contacts\PolyContact.cs" />
+    <Compile Include="Box2DX\Dynamics\Controllers\BuoyancyController.cs" />
+    <Compile Include="Box2DX\Dynamics\Controllers\ConstantAccelController.cs" />
+    <Compile Include="Box2DX\Dynamics\Controllers\ConstantForceController.cs" />
+    <Compile Include="Box2DX\Dynamics\Controllers\Controller.cs" />
+    <Compile Include="Box2DX\Dynamics\Controllers\GravityController.cs" />
+    <Compile Include="Box2DX\Dynamics\Controllers\TensorDampingController.cs" />
+    <Compile Include="Box2DX\Dynamics\Fixture.cs" />
+    <Compile Include="Box2DX\Dynamics\Island.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\DistanceJoint.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\GearJoint.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\Joint.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\LineJoint.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\MouseJoint.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\PrismaticJoint.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\PulleyJoint.cs" />
+    <Compile Include="Box2DX\Dynamics\Joints\RevoluteJoint.cs" />
+    <Compile Include="Box2DX\Dynamics\World.cs" />
+    <Compile Include="Box2DX\Dynamics\WorldCallbacks.cs" />
     <Compile Include="EndData\EndData.cs" />
     <Compile Include="EndData\GameEndData.cs" />
     <Compile Include="Extensions.cs" />
@@ -69,6 +117,7 @@
     <Compile Include="Scenes\MainMenu.cs" />
     <Compile Include="Assets.cs" />
     <Compile Include="Scenes\ScreenOfDeath.cs" />
+    <Compile Include="Scenes\SiderunnerScene.cs" />
     <Compile Include="Scenes\SpaceShooterScene.cs" />
     <Compile Include="Scenes\StrategyScene.cs" />
     <Compile Include="Scenes\Strategy\Button.cs" />
@@ -78,10 +127,22 @@
     <Compile Include="Scenes\WinScene.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\strategy.lvl">
+    <None Include="Assets\siderunner.init">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Assets\strategy.init">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\strategy.lvl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="Assets\videos\404_teamnotfound_fabian_intro.wmv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\videos\404_teamnotfound_fabian_intro.xnb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="Assets\Win.init">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Scenes\App.config" />
@@ -124,6 +185,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\siderunner_level.lvl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\textures\ausgewaelteplatte.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -158,6 +222,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\textures\hero2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\main menu - 1%25.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\main menu.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\textures\passierbar.png">
@@ -199,10 +269,22 @@
     <Content Include="Assets\textures\platte_bombe.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\textures\platte_fahne.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\textures\platte_verdeckt.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\textures\player.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\textures\selected.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\siderunner_platform.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\siderunner_player.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\textures\spacecraft.png">
@@ -223,6 +305,15 @@
     <Content Include="Assets\textures\tile_smallcover.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\textures\umrandung_v3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\umrandung.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\textures\umrandung2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\textures\wand_ecke.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -239,10 +330,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Microsoft.Web.WebJobs.Publish.1.0.7\tools\webjobs.targets" Condition="Exists('..\packages\Microsoft.Web.WebJobs.Publish.1.0.7\tools\webjobs.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

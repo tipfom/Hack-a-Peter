@@ -12,7 +12,6 @@ namespace hack_a_peter {
         public virtual bool IsMouseVisible { get { return false; } } // can change while the game is running
 
         public bool HasIntro { get { return Intro != null; } }
-        public int Score;
 
         public delegate void OnSceneFinished(string nextScene, EndData.EndData endData);
         public event OnSceneFinished Finished;

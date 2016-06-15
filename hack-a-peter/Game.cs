@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Windows.Forms;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
@@ -35,11 +36,20 @@ namespace hack_a_peter {
     class Game : Microsoft.Xna.Framework.Game {
         public const bool USE_VSYNC = true;
         public const bool USE_ANTIALISING = false;
-        public const bool USE_FULLSCREEN = false;
+        public const bool USE_FULLSCREEN =
+#if DEBUG
+            false;
+#else
+            true;
+#endif
         public const int WINDOW_WIDTH = 1024;
         public const int WINDOW_HEIGHT = 768;
         public const string WINDOW_TITLE = @"¯\_(ツ)_/¯          Hack-A-Peter the Game          (╯°□°）╯︵ ┻━┻";
-        public const int CURRENT_SEED = 1337;
+
+        private const int BACKGROUND_OFFSET_X = 646;
+        private const int BACKGROUND_OFFSET_Y = 268;
+        private const int BACKGROUND_SIZE_X = 2316;
+        private const int BACKGROUND_SIZE_Y = 1305;
 
         public static Color GB1 { get { return new Color(156, 189, 15); } }
         public static Color GB2 { get { return new Color(140, 173, 15); } }
@@ -54,11 +64,14 @@ namespace hack_a_peter {
         private int timePlayedTotal;
         private bool currentlyShowsIntro;
         private Random random;
+        private Texture2D background;
+        private VideoPlayer videoPlayer;
+        private bool introShown = false;
 
-        private Viewport gameViewport;
-        private Viewport globalViewport;
+        public static Viewport GameViewport { get; private set; }
+        public static Viewport GlobalViewport { get; private set; }
 
-        public Game( ) {
+        public Game ( ) {
             // init graphics
             globalGraphics = new GraphicsDeviceManager(this);
             globalGraphics.IsFullScreen = USE_FULLSCREEN;
@@ -79,27 +92,42 @@ namespace hack_a_peter {
             this.Window.Title = WINDOW_TITLE;
         }
 
-        private void Window_ClientSizeChanged(object sender, EventArgs e) {
+        private void Window_ClientSizeChanged (object sender, EventArgs e) {
             UpdateGraphics( );
         }
 
-        protected override void LoadContent( ) {
+        protected override void LoadContent ( ) {
             Assets.Load("main.init", this.Content);
             foreach (Scene scene in sceneList) {
                 Assets.Load(scene.InitFile, this.Content);
             }
+            sceneList.CurrentScene.Begin(new EndData.EndData(null));
+
+            background = Assets.Textures.Get("main_background");
         }
 
-        protected override void Draw(GameTime gameTime) {
+        protected override void Draw (GameTime gameTime) {
+
             // clear screen
             this.GraphicsDevice.Clear(sceneList.CurrentScene.BackColor);
 
             globalSpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
 
-            GraphicsDevice.Viewport = globalViewport;
-            // globaldrawing here
+            if (videoPlayer.State == MediaState.Playing) {
+                globalSpriteBatch.Draw(videoPlayer.GetTexture( ), GlobalViewport.Bounds, Color.White);
+                globalSpriteBatch.End( );
+                base.Draw(gameTime);
+                return;
+            }
 
-            GraphicsDevice.Viewport = gameViewport;
+            GraphicsDevice.Viewport = GlobalViewport;
+            // globaldrawing here
+            Rectangle backgroundRectangle = new Rectangle(GameViewport.X - BACKGROUND_OFFSET_X, GameViewport.Y - BACKGROUND_OFFSET_Y, BACKGROUND_SIZE_X, BACKGROUND_SIZE_Y);
+            globalSpriteBatch.Draw(background, backgroundRectangle, Color.White);
+            globalSpriteBatch.End( );
+
+            globalSpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, null);
+            GraphicsDevice.Viewport = GameViewport;
             if (currentlyShowsIntro)
                 sceneList.CurrentScene.DrawIntro(globalSpriteBatch);
             else
@@ -110,26 +138,29 @@ namespace hack_a_peter {
             globalSpriteBatch.DrawString(Assets.Fonts.Get("12px"), "fps : " + (1000f / gameTime.ElapsedGameTime.Milliseconds).ToString("00.00") + " #hyperSpeed", new Vector2(1, 1), Color.Black);
 #endif
             globalSpriteBatch.End( );
+            base.Draw(gameTime);
         }
 
-        protected override void Initialize( ) {
-            random = new Random(CURRENT_SEED);
+        protected override void Initialize ( ) {
+            GenerateRandom( );
             globalSpriteBatch = new SpriteBatch(this.GraphicsDevice);
+            videoPlayer = new VideoPlayer( );
 
             sceneList = new SceneList(OnFinished,
-                new MainMenu( ),
+                new MainMenu(random.Next(int.MinValue, int.MaxValue)),
                 new ScreenOfDeath( ),
                 new SpaceShooterScene(random.Next(int.MinValue, int.MaxValue)),
                 new MinesweeperScene(random.Next(int.MinValue, int.MaxValue)),
                 new LabyrinthScene(random.Next(int.MinValue, int.MaxValue), globalSpriteBatch.GraphicsDevice),
                 new StrategyScene( ),
-                new WinScene());
+                new SiderunnerScene(random.Next(int.MinValue, int.MaxValue)),
+                new WinScene( ));
 
             UpdateViewports( );
             base.Initialize( );
         }
 
-        private void UpdateGraphics( ) {
+        private void UpdateGraphics ( ) {
             if (globalGraphics.PreferredBackBufferWidth == Window.ClientBounds.Width &&
                 globalGraphics.PreferredBackBufferHeight == Window.ClientBounds.Height)
                 return;
@@ -141,24 +172,44 @@ namespace hack_a_peter {
             UpdateViewports( );
         }
 
-        private void UpdateViewports( ) {
-            globalViewport = new Viewport(0, 0, globalGraphics.PreferredBackBufferHeight, globalGraphics.PreferredBackBufferWidth);
+        private void UpdateViewports ( ) {
+            Viewport defaultViewport = GraphicsDevice.Viewport;
+            GlobalViewport = new Viewport(0, 0, globalGraphics.PreferredBackBufferWidth, globalGraphics.PreferredBackBufferHeight);
             Point gamePosition = new Point(
                 (globalGraphics.PreferredBackBufferWidth - WINDOW_WIDTH) / 2,
                 (globalGraphics.PreferredBackBufferHeight - WINDOW_HEIGHT) / 2
                 );
-            gameViewport = new Viewport(gamePosition.X, gamePosition.Y, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
+            GameViewport = new Viewport(gamePosition.X, gamePosition.Y, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
         }
 
-        protected override void UnloadContent( ) {
+        protected override void UnloadContent ( ) {
             Content.Unload( );
         }
 
-        protected override void Update(GameTime gameTime) {
+        protected override void Update (GameTime gameTime) {
+            if (!introShown) {
+                videoPlayer.Play(Assets.Videos.Get("intro"));
+                introShown = true;
+            } else if (videoPlayer.State == MediaState.Playing) {
+                if (videoPlayer.PlayPosition > Assets.Videos.Get("intro").Duration)
+                    videoPlayer.Stop( );
+                base.Update(gameTime);
+                return;
+            }
             timePlayedTotal += gameTime.ElapsedGameTime.Milliseconds;
+
+            if (!GameViewport.Bounds.Intersects(new Rectangle(Mouse.GetState( ).Position, new Point(0, 0)))) {
+                Point mousePosition = Mouse.GetState( ).Position;
+                mousePosition.X = Math.Min(GameViewport.Bounds.Right, Math.Max(GameViewport.Bounds.Left, mousePosition.X));
+                mousePosition.Y = Math.Min(GameViewport.Bounds.Bottom, Math.Max(GameViewport.Bounds.Top, mousePosition.Y));
+                Mouse.SetPosition(mousePosition.X, mousePosition.Y);
+                Console.WriteLine(Mouse.GetState( ).Position);
+            }
 
             if (Keyboard.GetState( ).IsKeyDown(Keys.Space))
                 currentlyShowsIntro = false;
+            if (Keyboard.GetState( ).IsKeyDown(Keys.Escape))
+                Application.Exit( );
             if (!currentlyShowsIntro)
                 sceneList.CurrentScene.Update(gameTime.ElapsedGameTime.Milliseconds, Keyboard.GetState( ), Mouse.GetState( ));
 
@@ -166,9 +217,19 @@ namespace hack_a_peter {
             base.Update(gameTime);
         }
 
-        private void OnFinished(string nextScene, EndData.EndData endData) {
-            if (endData.LastScene == MainMenu.NAME)
+        private void GenerateRandom ( ) {
+            random = new Random( );
+            int seed = random.Next(int.MinValue, int.MaxValue);
+            Console.WriteLine(seed);
+            random = new Random(seed);
+        }
+
+        private void OnFinished (string nextScene, EndData.EndData endData) {
+            if ((endData?.LastScene ?? "") == MainMenu.NAME)
                 timePlayedTotal = 0;
+            else if ((endData?.LastScene ?? "") == ScreenOfDeath.NAME)
+                GenerateRandom( );
+
             endData.TimePlayed = timePlayedTotal;
 
             if (sceneList.SetScene(nextScene)) {

@@ -1,3 +1,5 @@
 ﻿T space_craft "spacecraft.png"
 T space_bug "bug.png"
+T space_bug_1 "bug_invert.png"
+T space_bug_i "Illuminati-Transparent.png"
 T space_background "space_background.png"

@@ -44,13 +44,15 @@ namespace hack_a_peter.Scenes {
 
         private int score;
         private string screenText;
-        private bool acceptsKeys = false;
+        private bool showCollection;
+        private bool acceptInput;
 
-        public ScreenOfDeath( ) : base( ) {
+        public ScreenOfDeath ( ) : base( ) {
 
         }
 
-        public override void Begin(EndData.EndData lastSceneEndData) {
+        public override void Begin (EndData.EndData lastSceneEndData) {
+            System.Media.SystemSounds.Hand.Play( );
             if (lastSceneEndData.GetType( ) == typeof(GameEndData)) {
                 score = ((GameEndData)lastSceneEndData).FinishedScore;
             } else {
@@ -59,19 +61,30 @@ namespace hack_a_peter.Scenes {
             }
             screenText = String.Format(ENDSCREEN_TEXT, lastSceneEndData.LastScene, score, (lastSceneEndData.TimePlayed / 1000f).ToString( ));
 
-            acceptsKeys = false;
-            Timer inputEnableTimer = new Timer(4000);
-            inputEnableTimer.Elapsed += (sender, e) => { acceptsKeys = true; inputEnableTimer.Stop( ); };
-            inputEnableTimer.Start( );
+            showCollection = false;
+            acceptInput = false;
+            Timer acceptTimer = new Timer(400);
+            acceptTimer.Elapsed += (sender, e) => { acceptInput = true; acceptTimer.Stop( ); acceptTimer.Dispose( ); };
+            acceptTimer.Start( );
         }
 
-        public override void Draw(SpriteBatch spriteBatch) {
+        public override void Draw (SpriteBatch spriteBatch) {
             spriteBatch.DrawString(Assets.Fonts.Get("bluescreenfont"), screenText, new Vector2(0, 10), Color.White);
+            if (showCollection)
+                spriteBatch.DrawString(Assets.Fonts.Get("bluescreenfont"), "Hack-A-Peter is collecting data.\nPlease dont shutdown the computer ...", new Vector2(0, 600), Color.White);
         }
 
-        public override void Update(int dt, KeyboardState keyboard, MouseState mouse) {
-            if (keyboard.GetPressedKeys( ).Length > 0 && acceptsKeys)
-                OnFinished(MainMenu.NAME, new EndData.EndData(Name));
+        public override void Update (int dt, KeyboardState keyboard, MouseState mouse) {
+            if (keyboard.GetPressedKeys( ).Length > 0 && acceptInput) {
+                showCollection = true;
+                Timer timer = new Timer(4000);
+                timer.Elapsed += (sender, e) => {
+                    OnFinished(MainMenu.NAME, new EndData.EndData(Name));
+                    timer.Stop( );
+                    timer.Dispose( );
+                };
+                timer.Start( );
+            }
         }
     }
 }

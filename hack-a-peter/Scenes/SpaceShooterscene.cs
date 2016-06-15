@@ -32,57 +32,58 @@ namespace hack_a_peter.Scenes {
         private Vector2 playerSize;
         private Vector2 drawSize;
         private Texture2D playerTexture;
-        private Texture2D bugTexture;
+        private Texture2D[ ] bugTexture;
         private Texture2D backgroundTexture;
         private SpriteFont font;
         private Color textColor;
         private Random random;
         private int diedBugsCount = 0;
 
-        public SpaceShooterScene(int seed) {
+        public SpaceShooterScene (int seed) {
             random = new Random(seed);
             Timer spawnTimer = new Timer(SPAWN_RATE);
             spawnTimer.Elapsed += SpawnTimer_Elapsed;
             spawnTimer.Start( );
         }
 
-        private void SpawnTimer_Elapsed(object sender, ElapsedEventArgs e) {
+        private void SpawnTimer_Elapsed (object sender, ElapsedEventArgs e) {
             // called on main thread
             if (bugs.Count < BUG_COUNT)
                 CreateBug( );
         }
 
-        public override void Begin(EndData.EndData lastSceneEndData) {
+        public override void Begin (EndData.EndData lastSceneEndData) {
             bugs.Clear( );
             createdBugs.Clear( );
             diedBugs.Clear( );
+            diedBugsCount = 0;
 
             playerPosition = new Vector3(Game.WINDOW_WIDTH / 2, Game.WINDOW_HEIGHT / 2, 0);
             drawSize = new Vector2(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
             playerSize = new Vector2(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
             playerTexture = Assets.Textures.Get("space_craft");
-            bugTexture = Assets.Textures.Get("space_bug");
+            bugTexture = new[ ] { Assets.Textures.Get("space_bug"), Assets.Textures.Get("space_bug_1"), Assets.Textures.Get("space_bug_i") };
             backgroundTexture = Assets.Textures.Get("space_background");
             font = Assets.Fonts.Get("14px");
             textColor = new Color(15, 56, 15);
         }
 
-        public override void Draw(SpriteBatch spriteBatch) {
+        public override void Draw (SpriteBatch spriteBatch) {
             // draw background
             spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT), Color.White);
             // draw player
             spriteBatch.Draw(playerTexture, new Rectangle(playerPosition.XY( ).ToPoint( ), drawSize.ToPoint( )), null, Color.White, playerPosition.Z, playerTexture.Bounds.Size.ToVector2( ) / 2, SpriteEffects.None, 1f);
             // draw bugs
             foreach (Bug bug in bugs) {
-                spriteBatch.Draw(bugTexture, new Rectangle(bug.Transform.XY( ).ToPoint( ), bug.Size.ToPoint( )), null, Color.White, bug.Transform.Z, bugTexture.Bounds.Size.ToVector2( ) / 2, SpriteEffects.None, 1f);
+                spriteBatch.Draw(bugTexture[bug.Texture], new Rectangle(bug.Transform.XY( ).ToPoint( ), bug.Size.ToPoint( )), null, Color.White, bug.Transform.Z, bugTexture[bug.Texture].Bounds.Size.ToVector2( ) / 2, SpriteEffects.None, 1f);
             }
             // draw remaining bug count
             spriteBatch.DrawString(font, $"UEBERLEBE NOCH {BUGS_TO_FINISH - diedBugsCount:X2} BUGS", new Vector2(5, 5), textColor);
         }
 
-        public override void Update(int dt, KeyboardState keyboard, MouseState mouse) {
+        public override void Update (int dt, KeyboardState keyboard, MouseState mouse) {
             if (diedBugsCount >= BUGS_TO_FINISH) {
-                throw new IndexOutOfRangeException("hurra!");
+                OnFinished(LabyrinthScene.NAME, new EndData.EndData(Name));
             }
 
             if (keyboard.IsKeyDown(Keys.Up)) {
@@ -137,7 +138,7 @@ namespace hack_a_peter.Scenes {
                 bugs.Remove(diedBugs.Dequeue( ));
             }
 
-            while(createdBugs.Count > 0) {
+            while (createdBugs.Count > 0) {
                 bugs.Add(createdBugs.Dequeue( ));
             }
 
@@ -148,7 +149,7 @@ namespace hack_a_peter.Scenes {
             }
         }
 
-        private void CreateBug( ) {
+        private void CreateBug ( ) {
             Bug createdBug = new Bug(random, playerPosition);
             createdBug.Died += (sender, bug) => { diedBugs.Enqueue(bug); diedBugsCount++; };
             createdBugs.Enqueue(createdBug);
@@ -164,6 +165,7 @@ namespace hack_a_peter.Scenes {
 
             public Vector3 Transform;
             public Vector2 Size;
+            public int Texture;
             private float Increase;
             private float Direction;
             private int speed;
@@ -171,7 +173,7 @@ namespace hack_a_peter.Scenes {
 
             public event EventHandler<Bug> Died;
 
-            public Bug(Random random, Vector3 playerPosition) {
+            public Bug (Random random, Vector3 playerPosition) {
                 Size = new Vector2(random.Next(MIN_SIZE, MAX_SIZE), random.Next(MIN_SIZE, MAX_SIZE));
                 speed = random.Next(MIN_BUG_SPEED, MAX_BUG_SPEED);
                 rotation = (float)(MIN_ROTATION_PER_SECOND + random.NextDouble( ) * (MAX_ROTATION_PER_SECOND - MIN_ROTATION_PER_SECOND));
@@ -196,9 +198,12 @@ namespace hack_a_peter.Scenes {
                 Increase = (playerPosition.Y - Transform.Y) / (playerPosition.X - Transform.X);
                 Transform.Z = (float)Math.Tan(Increase);
                 Direction = (playerPosition.X > Transform.X) ? 1f : -1f;
+
+                int rn = random.Next(0, 101);
+                Texture = (rn == 100) ? 2 : (rn < 50) ? 1 : 0;
             }
 
-            public void Update(float dt) {
+            public void Update (float dt) {
                 float movementX = (float)Math.Cos(Math.Atan(Increase)) * speed * (dt / 1000f) * Direction;
                 Vector2 movement = new Vector2(movementX, movementX * Increase);
                 Transform = new Vector3(Transform.XY( ) + movement, (Transform.Z + rotation * (dt / 1000f)) % (2f * (float)Math.PI));
@@ -207,7 +212,7 @@ namespace hack_a_peter.Scenes {
                     Died?.Invoke(null, this);
             }
 
-            public bool Collides(Vector3 playerPosition, Vector2 playerSize) {
+            public bool Collides (Vector3 playerPosition, Vector2 playerSize) {
                 return !(
                     playerPosition.X - playerSize.X / 2 > this.Transform.X + this.Size.X / 2 ||
                     playerPosition.X + playerSize.X / 2 < this.Transform.X - this.Size.X / 2 ||
@@ -216,7 +221,7 @@ namespace hack_a_peter.Scenes {
                     );
             }
 
-            private bool OutOfMap( ) {
+            private bool OutOfMap ( ) {
                 return (
                     this.Transform.Y - this.Size.Y / 2 >= Game.WINDOW_HEIGHT ||
                     this.Transform.Y + this.Size.Y / 2 <= 0 ||
